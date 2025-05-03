@@ -1,0 +1,85 @@
+
+:root {
+  --font-family: -apple-system, BlinkMacSystemFont, Helvetica Neue, Segoe UI, BIZ UDPGothic, Meiryo, Hiragino Kaku Gothic ProN, sans-serif;
+  --font-size: 0.9rem;
+  --line-height: 1.625;
+  --color-background: #f8f8f8;
+  --color-link: #1560d2;
+  --color-primary: #005796;
+  --color-white: #f8f8f8;
+  --color-black: #333;
+  --color-text: #333;
+  --color-code-background: #e8e8e8;
+  --color-codeblock-text: #abb2bf;
+  --color-codeblock-background: #282c34;
+  --max-width-page: 960px;
+  --max-width-paragraph: 720px;
+}
+
+* {
+  box-sizing: inherit;
+}
+
+html {
+  box-sizing: border-box;
+  background-color: var(--color-background);
+}
+
+body {
+  font-family: var(--font-family);
+  font-size: var(--font-size);
+  line-height: var(--line-height);
+  color: var(--color-text);
+}
+
+div#wrap {
+  max-width: var(--max-width-page);
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+p, pre {
+  max-width: var(--max-width-paragraph);
+}
+
+pre {
+  position: relative;
+  color: var(--color-codeblock-text);
+  background: var(--color-codeblock-background);
+}
+
+code {
+  font-family: consolas, Menlo, "Liberation Mono", Courier, meiryo, arial, monospace;
+  display: inline-block;
+  white-space: nowrap;
+  padding: 0 0.25rem;
+  border-radius: 2px;
+  background-color: var(--color-code-background);
+}
+
+pre > code {
+  display: block;
+  padding: 1em;
+  line-height: 1.2;
+  overflow-x: auto;
+  white-space: pre;
+  background-color: var(--color-codeblock-background);
+  overflow-x: auto;
+}
+
+pre > code[class^="language-"] {
+  font-family: consolas;
+  font-size: calc(16px * 0.85);
+}
+
+pre > span.title {
+  position: absolute;
+  visibility: visible !important;
+  top: 0;
+  right: 0;
+  display: inline-block;
+  padding: 0.25em 0.5em;
+  background-color: gray;
+  color: #f0f0f0;
+  border-bottom-left-radius: 0.5rem;
+}

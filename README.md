@@ -13,7 +13,7 @@ When a folder is specified as a source, the tool converts all .md files into .ht
 - Frontend of @cobapen/markdown
 - Swappable template file
 - Simple static site generator
-- Watch changes and convert
+- Watch mode
 
 ## Install
 
@@ -35,4 +35,4 @@ mdhtml <input> --template _template.html --output <output>
 - `--quiet`: Enable quiet mode and suppress conversion messages
 - `--watch`: Enable watch mode and monitor filesystem changes
 - `--math <path>`: Generate mathjax css file (Default: math.css)  
-    - `+:full` to disable adaptiveCSS)
+    - `+:full` to disable adaptiveCSS

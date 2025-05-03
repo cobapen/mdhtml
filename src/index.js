@@ -16,7 +16,7 @@ program
   .action((input, options) => {
     const converter = new MdHtmlConverter({
       template: options.template,
-      outputDir: options.output,
+      output: options.output,
       quiet: options.quiet,
       clean: options.clean,
       math: withDefaults(options.math, "math.css"),

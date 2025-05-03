@@ -13,6 +13,7 @@ When a folder is specified as a source, the tool converts all .md files into .ht
 - Frontend of @cobapen/markdown
 - Swappable template file
 - Simple static site generator
+- Watch changes and convert
 
 ## Install
 
@@ -25,10 +26,13 @@ node.js &gt; 20.11, 21.2 or later required
 ## Usage
 
 ```
-mdhtml <input> [args]
+mdhtml <input> --template _template.html --output <output>
 ```
 
-**Options**
-
-- `--template`: Specify template file. 
-- `--output`: Specify output path
+- `--output <path>`: Specify output file/folder (Default: outupt)
+- `--template <file>`: Specify output folder (Default: _template.html)
+- `--clean`: Clean output folder before conversion
+- `--quiet`: Enable quiet mode and suppress conversion messages
+- `--watch`: Enable watch mode and monitor filesystem changes
+- `--math <path>`: Generate mathjax css file (Default: math.css)  
+    - `+:full` to disable adaptiveCSS)

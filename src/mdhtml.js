@@ -157,7 +157,7 @@ export class MdHtmlConverter {
       } 
       else if (isFile(absPath)) {
         const outputPath = this.#resolveOutputPath(outputDir, relPath);
-        prepareDir(outputPath);
+        await prepareDir(outputPath);
         await fs.copyFile(absPath, outputPath, fs.constants.COPYFILE_FICLONE);
         this.#print("copied:", outputPath);
       } 
@@ -253,7 +253,7 @@ export class MdHtmlConverter {
       content: html 
     });
 
-    prepareDir(destination);
+    await prepareDir(destination);
     await fs.writeFile(destination, outputHtml, "utf-8");
     this.#print("wrote:", destination);
   }
@@ -391,7 +391,7 @@ export class MdHtmlConverter {
     }
     const { math: stylesheet } = this.#config;
     const cssPath = this.#resolveOutputPath(outputDir, stylesheet);
-    prepareDir(cssPath);
+    await prepareDir(cssPath);
     await fs.writeFile(cssPath, css, "utf-8");
     this.#print("wrote:", cssPath);
     this.#lastWrittenMathCSS = css; 

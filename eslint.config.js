@@ -1,4 +1,5 @@
 import stylistic from "@stylistic/eslint-plugin";
+import tsParser from "@typescript-eslint/parser";
 import importPlugin from "eslint-plugin-import";
 
 export default [
@@ -6,6 +7,12 @@ export default [
     ignores: [
       "node_modules/",
     ],
+  },
+  {
+    files: ["**/*.ts"],
+    languageOptions: {
+      parser: tsParser,
+    }
   },
   {
     plugins: {

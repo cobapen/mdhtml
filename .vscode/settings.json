@@ -1,6 +1,6 @@
 {
   "eslint.format.enable": true,
-  "[javascript]": {
+  "[javascript][typescript]": {
     "editor.formatOnSave": true,
     "editor.defaultFormatter": "dbaeumer.vscode-eslint",
     "editor.codeActionsOnSave": {

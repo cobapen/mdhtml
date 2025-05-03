@@ -58,7 +58,7 @@ export class MdHtmlConverter {
 
   /**
    * Create a new instance of MdHtmlConverter.
-   * @param {Options} option  converter options
+   * @param {Partial<Options>} [option]  converter options
    */
   constructor(option) {
     option = { ...option };

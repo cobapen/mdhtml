@@ -11,7 +11,7 @@
     "mdhtml": "src/index.js"
   },
   "scripts": {
-    "build": "mdhtml docs --math css/math.css --clean",
+    "build": "mdhtml docs --math css/math.css --clean --output public",
     "test": "vitest",
     "coverage": "vitest run --coverage",
     "lint": "eslint src"

@@ -1,6 +1,6 @@
 import { existsSync, lstatSync } from "node:fs";
 import fs from "node:fs/promises";
-import path, { basename, extname } from "node:path";
+import path, { basename, dirname, extname } from "node:path";
 import { CMarkdown } from "@cobapen/markdown";
 import chokidar from "chokidar";
 import mustache from "mustache";
@@ -14,12 +14,14 @@ const useFallbackTemplate = "__$fallback";
  * @property {string} output - Directory to save the converted HTML files
  * @property {boolean} quiet - Do not print successful log messages
  * @property {boolean} clean - Remove dst folder before conversion
+ * @property {string}  math - Output path to the stylesheet
  */
 const defaultOptions = {
   template: "_template.html",
   output: "output",
   quiet: false,
   clear: false,
+  math: "math.css",
 };
 
 const fallbackTemplate = 
@@ -47,26 +49,37 @@ export class MdHtmlConverter {
   #print;
   #userSpecifiedOutput;
   #userSpecifiedTemplate;
+  #userSpecifiedMathStylesheet;
   /** @type {Map<string, string>} */
   #lastUsedTemplates;
+  #lastWrittenMathCSS;
   #fallbackTemplate;
 
 
   /**
    * Create a new instance of MdHtmlConverter.
-   * 
-   * @param {CMarkdown} md    externally created CMarkdown instance.
    * @param {Options} option  converter options
    */
-  constructor(md, option) {
+  constructor(option) {
     option = { ...option };
+
+    let adaptiveCSS = true;
+    if (option.math?.endsWith(":full")) {
+      option.math = option.math.slice(0, -5);
+      adaptiveCSS = false;
+    }
     
-    this.#md = md || new CMarkdown();
+    this.#md = new CMarkdown({
+      math: {
+        chtml: { adaptiveCSS },
+      }
+    });
     this.#config = merge(defaultOptions, option); 
     this.#print = printFn(this.#config.quiet);
     this.#lastUsedTemplates = {};
     this.#userSpecifiedOutput = option.output !== undefined;
     this.#userSpecifiedTemplate = option.template !== undefined;
+    this.#userSpecifiedMathStylesheet = option.math !== undefined;
     this.#fallbackTemplate = fallbackTemplate;
   }
 
@@ -76,6 +89,28 @@ export class MdHtmlConverter {
 
   set defaultTemplate(template) {
     this.#fallbackTemplate = template;
+  }
+
+
+  get md() {
+    return this.#md;
+  }
+  
+  set md(md) {
+    this.#md = md;
+  }
+
+  /**
+   * Convert single file
+   * @param {string} input 
+   */
+  async convertSingle(input) {
+    const templateText = await this.#resolveTemplateSingle(false);
+    const dstPath = this.#resolveOutputPathSingle(input);
+    await this.#renderFileWithTemplate(input, dstPath, templateText);
+    if (this.#userSpecifiedMathStylesheet) {
+      await this.#writeMathCSS(dirname(dstPath));
+    }
   }
 
   /**
@@ -116,12 +151,12 @@ export class MdHtmlConverter {
       const relPath = path.relative(absInputPath, absPath);
 
       if (path.extname(name) === ".md") {
-        const outputPath = path.join(outputDir, relPath.replace(/\.md$/, ".html"));
-        await this.#renderFile(absPath, outputPath, templateText);
+        const outputPath = this.#resolveOutputPath(outputDir, relPath);
+        await this.#renderFileWithTemplate(absPath, outputPath, templateText);
         this.#print("wrote:", outputPath);
       } 
       else if (isFile(absPath)) {
-        const outputPath = path.join(outputDir, relPath);
+        const outputPath = this.#resolveOutputPath(outputDir, relPath);
         prepareDir(outputPath);
         await fs.copyFile(absPath, outputPath, fs.constants.COPYFILE_FICLONE);
         this.#print("copied:", outputPath);
@@ -129,7 +164,12 @@ export class MdHtmlConverter {
     });
 
     await Promise.all(promises);
+
+    if (this.#userSpecifiedMathStylesheet) {
+      await this.#writeMathCSS(outputDir);
+    }
   }
+
 
   /**
    * Convert all files and then keep watching changes
@@ -143,16 +183,28 @@ export class MdHtmlConverter {
       ignoreInitial: true,
     });
 
-    watcher.on("change", filepath => {
-      this.convertSingle(filepath);
+    watcher.on("change", async filepath => {
+      await this.convertSingle(filepath);
     });
   }
 
+  
   /**
    * Convert all files and then keep watching changes
    * @param {string} inputDir 
    */
   async watch(inputDir) {
+    if (!existsSync(inputDir)) {
+      console.error(`No such file or directory: ${inputDir}`);
+      return;
+    }
+    if (lstatSync(inputDir).isFile()) {
+      // treat inputDir as input and do single conversion
+      await this.watchSingle(inputDir);
+      return;
+    }
+
+    const { output: outputDir } = this.#config;
     await this.convert(inputDir);
 
     const watcher = chokidar.watch(inputDir, {
@@ -161,51 +213,38 @@ export class MdHtmlConverter {
     });
 
     watcher
-      .on("add", (filePath) => {
-        this.#renderFile(inputDir, filePath);
+      .on("add", async filePath => {
+        await renderOnChange(filePath);
       })
-      .on("change", (filePath) => {
+      .on("change", async filePath => {
         if (filePath === this.#config.template) {
           this.#lastUsedTemplates = "";
         }
-        this.#renderFile(inputDir, filePath);
+        await renderOnChange(filePath);
       })
       .on("unlink", (_filepath) => {
+        // do nothing?
       });
 
     this.#print(`Watch started: ${inputDir}`);
+
+    const self = this;
+    const renderOnChange = async filePath => {
+      const outputPath = self.#resolveOutputPath(outputDir, filePath);
+      await self.#renderFile(inputDir, filePath, outputPath); 
+      if (self.#userSpecifiedMathStylesheet) {
+        await self.#writeMathCSS(outputDir, true);
+      }
+    };
   }
-
-  /**
-   * Convert single file
-   * @param {string} input 
-   */
-  async convertSingle(input) {
-    const { template, output } = this.#config;
-
-    // If user did not specifiy the template, use default template
-    const useTemplate = this.#userSpecifiedTemplate
-      ? template
-      : useFallbackTemplate;
-    
-    const templateText = await this.resolveTemplate(useTemplate, process.cwd(), false);
-
-    // If user did not specified the output name, use different default value.
-    const dstPath = this.#userSpecifiedOutput 
-      ? appendMissingExt(output, ".html")
-      : appendMissingExt(basenameWithoutExt(input), ".html");
-
-    await this.#renderFile(input, dstPath, templateText);
-  }
-
 
   /**
    * Render markdown to dstFilePath.
    * @param {string} file         relative path to the file.
    * @param {string} sourceDir    path to source dir.
-   * @param {string|undefined} templateText   
+   * @param {string} templateText   
    */
-  async #renderFile(source, destination, templateText) {
+  async #renderFileWithTemplate(source, destination, templateText) {
     const name = basename(source, extname(source));
     const content = await fs.readFile(source, "utf-8");
     const html = this.#md.render(content);
@@ -216,13 +255,28 @@ export class MdHtmlConverter {
 
     prepareDir(destination);
     await fs.writeFile(destination, outputHtml, "utf-8");
+    this.#print("wrote:", destination);
   }
+
+
+  /**
+   * Render markdown to dstFilePath, resolving template per call.
+   * @param {string} inputDir       input directory (required to resolve template)
+   * @param {string} source         
+   * @param {string} destination 
+   */
+  async #renderFile(inputDir, source, destination) {
+    const { template } = this.#config;
+    const templateText = await this.resolveTemplate(template, inputDir, false);
+    await this.#renderFileWithTemplate(source, destination, templateText);
+  }
+
 
   /**
    * Resolve template file.
    * 
    * From the template path/name, the function looks up from the following paths.
-   * Once found, the template is cached to be reused without file access.
+   * Once found, the template is cached and it can be reused without file access.
    * 
    * 1. <file>              (absolute path)
    * 2. <file>              (relative from currentDir)
@@ -233,11 +287,15 @@ export class MdHtmlConverter {
    * //                                              ^^^^^^
    * 
    * @param {string} template   template name (absolute or relative)
-   * @param {string} sourceDir  the source directory
-   * @param {string} useCache
+   * @param {string} [sourceDir]  the source directory
+   * @param {string} [useCache]
    * @returns {Promise<string>} tempalte text
    */
   async resolveTemplate(template, sourceDir, useCache) {
+
+    if (!sourceDir) {
+      sourceDir = process.cwd();
+    }
 
     if (template === undefined || template === "") {
       console.warn("No template specified. Using fallback template.");
@@ -269,6 +327,74 @@ export class MdHtmlConverter {
 
     console.warn(`Template file not found: ${template}`);
     return fallbackTemplate;
+  }
+
+  /**
+   * Resolve template file for single file conversion mode.
+   * 
+   * This method handles special case where inputDir does not exist, 
+   * and does not raise any warnings to use the default fallback template.
+   * 
+   * @param {boolean} useCache
+   */
+  async #resolveTemplateSingle(useCache = false) {
+    const { template } = this.#config;
+
+    // If user did not specifiy the template, use default template.
+    // This handle special case where no alert is 
+    const useTemplate = this.#userSpecifiedTemplate
+      ? template
+      : useFallbackTemplate;
+    
+    return await this.resolveTemplate(useTemplate, process.cwd(), useCache);
+  }
+
+  /**
+   * Resolve output filepath from relative path from inputDir
+   * @param {string} outputDir
+   * @param {string} relPath
+   */
+  #resolveOutputPath(outputDir, relPath) {
+    if (relPath.endsWith(".md")) {
+      return path.join(outputDir, relPath.replace(/\.md$/, ".html"));
+    } else {
+      return path.join(outputDir, relPath);
+    }
+  }
+
+  /**
+   * Resolve output filepath from input file (single file conversion mode)
+   * 
+   * This method handles special case where inputDir does not exist,
+   * and the output path may be calculated from the input file name.
+   * 
+   * @param {string} input
+   */
+  #resolveOutputPathSingle(input) {
+    // If user did not specified the output name, use different default value.
+    const { output } = this.#config; 
+    return this.#userSpecifiedOutput 
+      ? appendMissingExt(output, ".html")
+      : appendMissingExt(basenameWithoutExt(input), ".html");
+  }
+
+  
+  /**
+   * Write math stylesheet to the output directory.
+   * @param {string} outputDir 
+   * @param {boolean} checkCache
+   */
+  async #writeMathCSS(outputDir, checkCache = false) {
+    const css = this.#md.mathcss();
+    if (checkCache && this.#lastWrittenMathCSS === css) {
+      return;
+    }
+    const { math: stylesheet } = this.#config;
+    const cssPath = this.#resolveOutputPath(outputDir, stylesheet);
+    prepareDir(cssPath);
+    await fs.writeFile(cssPath, css, "utf-8");
+    this.#print("wrote:", cssPath);
+    this.#lastWrittenMathCSS = css; 
   }
 }
 

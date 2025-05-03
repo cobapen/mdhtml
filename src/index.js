@@ -1,5 +1,4 @@
 #! /usr/bin/env node
-import { CMarkdown } from "@cobapen/markdown";
 import { Command } from "commander";
 import { MdHtmlConverter } from "./mdhtml.js";
 
@@ -13,13 +12,14 @@ program
   .option("-w, --watch", "Run in watch mode")
   .option("-q, --quiet", "Run in quiet mode")
   .option("-c, --clean", "Delete output directory before conversion")
+  .option("--math [file]", "Generate math stylesheet")
   .action((input, options) => {
-    const md = new CMarkdown();
-    const converter = new MdHtmlConverter(md, {
+    const converter = new MdHtmlConverter({
       template: options.template,
       outputDir: options.output,
       quiet: options.quiet,
       clean: options.clean,
+      math: withDefaults(options.math, "math.css"),
     });
     
     if (options.watch === true) {
@@ -30,3 +30,22 @@ program
   });
 
 program.parse(process.argv);
+
+
+/**
+ * <none> : undefined
+ * --flag : true
+ * --flag <arg> : string
+ * @template T
+ * @param {string|boolean|undefined} option 
+ * @param {T} defaultValue
+ */
+function withDefaults(option, defaultValue) {
+  if (!option) {
+    return undefined;
+  }
+  if (option === true) {
+    return defaultValue;
+  }
+  return option;
+}

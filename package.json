@@ -3,7 +3,8 @@
   "version": "0.1.0",
   "description": "Markdown to html document generator",
   "keywords": [
-    "markdown", "cli"
+    "markdown",
+    "cli"
   ],
   "license": "MIT",
   "author": "yamavol",

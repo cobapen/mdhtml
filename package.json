@@ -8,9 +8,9 @@
   "license": "MIT",
   "author": "yamavol",
   "type": "module",
-  "main": "src/index.js",
+  "main": "lib/index.js",
   "bin": {
-    "mdhtml": "src/index.js"
+    "mdhtml": "lib/index.js"
   },
   "homepage": "https://github.com/cobapen/mdhtml#readme",
   "bugs": {
@@ -20,6 +20,10 @@
     "type": "git",
     "url": "git+https://github.com/cobapen/mdhtml.git"
   },
+  "files": [
+    "lib/**/*.js",
+    "lib/**/*.d.ts"
+  ],
   "scripts": {
     "build": "npx mdhtml docs --math css/math.css --clean --output public",
     "test": "vitest",

@@ -25,7 +25,9 @@
     "lib/**/*.d.ts"
   ],
   "scripts": {
-    "build": "npx mdhtml docs --math css/math.css --clean --output public",
+    "build": "tsc",
+    "build:dev": "tsc",
+    "build:doc": "npx mdhtml docs --math css/math.css --clean --output public",
     "test": "vitest",
     "coverage": "vitest run --coverage",
     "lint": "eslint src",

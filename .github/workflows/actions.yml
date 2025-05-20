@@ -40,8 +40,11 @@ jobs:
       - name: npm install (ci) 
         run: npm ci
 
-      - name: generage documents
+      - name: build library
         run: npm run build
+
+      - name: generage documents
+        run: npm run build:doc
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4

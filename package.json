@@ -38,19 +38,19 @@
     "node": ">=20.11.0 <21 || >=21.2.0"
   },
   "dependencies": {
-    "@cobapen/markdown": "^0.3.1",
+    "@cobapen/markdown": "^0.4.2",
     "chokidar": "^4.0.3",
-    "commander": "^13.1.0",
+    "commander": "^14.0.0",
     "mustache": "^4.2.0"
   },
   "devDependencies": {
     "@cobapen/eslint-config": "^0.4.0",
     "@types/mustache": "^4.2.6",
     "@types/node": "^22.15.19",
-    "@vitest/coverage-v8": "^3.1.2",
-    "eslint": "^9.25.1",
-    "memfs": "^4.17.0",
+    "@vitest/coverage-v8": "^3.1.4",
+    "eslint": "^9.27.0",
+    "memfs": "^4.17.2",
     "typescript": "^5.8.3",
-    "vitest": "^3.1.2"
+    "vitest": "^3.1.4"
   }
 }

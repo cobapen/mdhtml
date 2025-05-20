@@ -8,19 +8,19 @@ import { appendMissingExt, basenameWithoutExt, cleanDir, isFile, prepareDir } fr
 
 const useFallbackTemplate = "__$fallback";
 
-/**
- * @typedef {Object} Options
- * @property {string} template - Path to the HTML template file in input directory.
- * @property {string} output - Directory to save the converted HTML files
- * @property {boolean} quiet - Do not print successful log messages
- * @property {boolean} clean - Remove dst folder before conversion
- * @property {string}  math - Output path to the stylesheet
- */
-const defaultOptions = {
+type Options = {
+  template: string,   // Path to the HTML template file in input directory.
+  output: string,     // Directory to save the converted HTML files
+  quiet: boolean,     // Do not print successful log messages
+  clean: boolean,     // Remove dst folder before conversion
+  math: string        // Output path to the stylesheet
+};
+
+const defaultOptions: Options = {
   template: "_template.html",
   output: "output",
   quiet: false,
-  clear: false,
+  clean: false,
   math: "math.css",
 };
 
@@ -50,17 +50,15 @@ export class MdHtmlConverter {
   #userSpecifiedOutput;
   #userSpecifiedTemplate;
   #userSpecifiedMathStylesheet;
-  /** @type {Map<string, string>} */
-  #lastUsedTemplates;
+  #lastUsedTemplates: Record<string, string>;
   #lastWrittenMathCSS;
   #fallbackTemplate;
 
 
   /**
    * Create a new instance of MdHtmlConverter.
-   * @param {Partial<Options>} [option]  converter options
    */
-  constructor(option) {
+  constructor(option?: Partial<Options>) {
     option = { ...option };
 
     let adaptiveCSS = true;
@@ -77,6 +75,7 @@ export class MdHtmlConverter {
     this.#config = merge(defaultOptions, option); 
     this.#print = printFn(this.#config.quiet);
     this.#lastUsedTemplates = {};
+    this.#lastWrittenMathCSS = "";
     this.#userSpecifiedOutput = option.output !== undefined;
     this.#userSpecifiedTemplate = option.template !== undefined;
     this.#userSpecifiedMathStylesheet = option.math !== undefined;
@@ -102,9 +101,8 @@ export class MdHtmlConverter {
 
   /**
    * Convert single file
-   * @param {string} input 
    */
-  async convertSingle(input) {
+  async convertSingle(input: string) {
     const templateText = await this.#resolveTemplateSingle(false);
     const dstPath = this.#resolveOutputPathSingle(input);
     await this.#renderFileWithTemplate(input, dstPath, templateText);
@@ -115,9 +113,8 @@ export class MdHtmlConverter {
 
   /**
    * Convert all files in the input directory.
-   * @param {string} inputDir 
    */
-  async convert(inputDir) {
+  async convert(inputDir: string) {
     if (!existsSync(inputDir)) {
       console.error(`No such file or directory: ${inputDir}`);
       return;
@@ -173,9 +170,8 @@ export class MdHtmlConverter {
 
   /**
    * Convert all files and then keep watching changes
-   * @param {string} inputDir 
    */
-  async watchSingle(input) {
+  async watchSingle(input: string) {
     await this.convertSingle(input);
 
     const watcher = chokidar.watch(input, {
@@ -191,9 +187,8 @@ export class MdHtmlConverter {
   
   /**
    * Convert all files and then keep watching changes
-   * @param {string} inputDir 
    */
-  async watch(inputDir) {
+  async watch(inputDir: string) {
     if (!existsSync(inputDir)) {
       console.error(`No such file or directory: ${inputDir}`);
       return;
@@ -218,7 +213,7 @@ export class MdHtmlConverter {
       })
       .on("change", async filePath => {
         if (filePath === this.#config.template) {
-          this.#lastUsedTemplates = "";
+          delete this.#lastUsedTemplates[filePath];
         }
         await renderOnChange(filePath);
       })
@@ -229,7 +224,7 @@ export class MdHtmlConverter {
     this.#print(`Watch started: ${inputDir}`);
 
     const self = this;
-    const renderOnChange = async filePath => {
+    const renderOnChange = async (filePath: string) => {
       const outputPath = self.#resolveOutputPath(outputDir, filePath);
       await self.#renderFile(inputDir, filePath, outputPath); 
       if (self.#userSpecifiedMathStylesheet) {
@@ -240,13 +235,13 @@ export class MdHtmlConverter {
 
   /**
    * Render markdown to dstFilePath.
-   * @param {string} file         relative path to the file.
-   * @param {string} sourceDir    path to source dir.
-   * @param {string} templateText   
+   * @param file         relative path to the file.
+   * @param sourceDir    path to source dir.
+   * @param templateText   
    */
-  async #renderFileWithTemplate(source, destination, templateText) {
-    const name = basename(source, extname(source));
-    const content = await fs.readFile(source, "utf-8");
+  async #renderFileWithTemplate(file: string, destination: string, templateText: string) {
+    const name = basename(file, extname(file));
+    const content = await fs.readFile(file, "utf-8");
     const html = this.#md.render(content);
     const outputHtml = mustache.render(templateText, { 
       title: name,
@@ -261,11 +256,11 @@ export class MdHtmlConverter {
 
   /**
    * Render markdown to dstFilePath, resolving template per call.
-   * @param {string} inputDir       input directory (required to resolve template)
-   * @param {string} source         
-   * @param {string} destination 
+   * @param inputDir       input directory (required to resolve template)
+   * @param source         
+   * @param destination 
    */
-  async #renderFile(inputDir, source, destination) {
+  async #renderFile(inputDir: string, source: string, destination: string) {
     const { template } = this.#config;
     const templateText = await this.resolveTemplate(template, inputDir, false);
     await this.#renderFileWithTemplate(source, destination, templateText);
@@ -286,12 +281,12 @@ export class MdHtmlConverter {
    * // mdhtml inputDir --output <output> --template <file>
    * //                                              ^^^^^^
    * 
-   * @param {string} template   template name (absolute or relative)
-   * @param {string} [sourceDir]  the source directory
-   * @param {string} [useCache]
-   * @returns {Promise<string>} tempalte text
+   * @param template   template name (absolute or relative)
+   * @param sourceDir  the source directory
+   * @param useCache
+   * @returns template text
    */
-  async resolveTemplate(template, sourceDir, useCache) {
+  async resolveTemplate(template: string, sourceDir?: string, useCache?: boolean): Promise<string> {
 
     if (!sourceDir) {
       sourceDir = process.cwd();
@@ -351,10 +346,8 @@ export class MdHtmlConverter {
 
   /**
    * Resolve output filepath from relative path from inputDir
-   * @param {string} outputDir
-   * @param {string} relPath
    */
-  #resolveOutputPath(outputDir, relPath) {
+  #resolveOutputPath(outputDir: string, relPath: string) {
     if (relPath.endsWith(".md")) {
       return path.join(outputDir, relPath.replace(/\.md$/, ".html"));
     } else {
@@ -367,10 +360,8 @@ export class MdHtmlConverter {
    * 
    * This method handles special case where inputDir does not exist,
    * and the output path may be calculated from the input file name.
-   * 
-   * @param {string} input
    */
-  #resolveOutputPathSingle(input) {
+  #resolveOutputPathSingle(input: string) {
     // If user did not specified the output name, use different default value.
     const { output } = this.#config; 
     return this.#userSpecifiedOutput 
@@ -381,10 +372,8 @@ export class MdHtmlConverter {
   
   /**
    * Write math stylesheet to the output directory.
-   * @param {string} outputDir 
-   * @param {boolean} checkCache
    */
-  async #writeMathCSS(outputDir, checkCache = false) {
+  async #writeMathCSS(outputDir: string, checkCache: boolean = false) {
     const css = this.#md.mathcss();
     if (checkCache && this.#lastWrittenMathCSS === css) {
       return;
@@ -401,11 +390,8 @@ export class MdHtmlConverter {
 
 /**
  * undefined aware shallow merge.
- * @template T
- * @param  {...T} args 
- * @returns {T}
  */
-function merge(...args) {
+function merge<T extends Record<string, any>>(...args: T[]) {
   return args.reduce((acc, arg) => {
     Object.keys(arg).forEach(key => {
       if (arg[key] !== undefined) {
@@ -413,15 +399,11 @@ function merge(...args) {
       }
     });
     return acc;
-  }, {});
+  }, {} as Record<string, any>);
 }
 
 
-/**
- * @param {boolean} quiet 
- * @returns {(...args: any[]) => void}
- */
-function printFn(quiet) {
+function printFn(quiet: boolean): (...args: any[]) => void {
   if (quiet === true) {
     return () => {};
   } else {

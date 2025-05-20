@@ -4,20 +4,16 @@ import path, { basename, dirname, extname } from "node:path";
 
 /**
  * Return basename without extension.
- * @param {string} path 
  */
-export function basenameWithoutExt(path) {
+export function basenameWithoutExt(path: string) {
   return basename(path, extname(path));
 }
 
 
 /**
  * Append extension if missing, otherwise return original path.
- * @param {string} path     filename
- * @param {string} ext      extension
- * @returns 
  */
-export function appendMissingExt(path, ext) {
+export function appendMissingExt(path: string, ext: string) {
   if (!ext.startsWith(".")) {
     ext = "." + ext;
   }
@@ -32,9 +28,8 @@ export function appendMissingExt(path, ext) {
 
 /**
  * Create parent directory if not exists for the given path
- * @param {string} path 
  */
-export async function prepareDir(path) {
+export async function prepareDir(path: string) {
   const dir = dirname(path);
   if (dir != path && !existsSync(dir)) {
     await fs.mkdir(dir, { recursive: true });
@@ -43,9 +38,8 @@ export async function prepareDir(path) {
 
 /**
  * Remove directory contents recursively.
- * @param {string} dir
  */
-export async function cleanDir(dir) {
+export async function cleanDir(dir: string) {
   if (existsSync(dir)) {
     const files = await fs.readdir(dir, { withFileTypes: true });
     const promises = files.map(async file => {
@@ -62,9 +56,8 @@ export async function cleanDir(dir) {
 
 /**
  * Returns true if given path (or dirent) is a file
- * @param {string|Dirent} file
  */
-export function isFile(file) {
+export function isFile(file: string | Dirent) {
   if (file instanceof Dirent) {
     return file.isFile();
   } else {

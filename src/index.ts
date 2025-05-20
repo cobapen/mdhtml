@@ -36,11 +36,8 @@ program.parse(process.argv);
  * <none> : undefined
  * --flag : true
  * --flag <arg> : string
- * @template T
- * @param {string|boolean|undefined} option 
- * @param {T} defaultValue
  */
-function withDefaults(option, defaultValue) {
+function withDefaults<T>(option: string|boolean|undefined, defaultValue: T) {
   if (!option) {
     return undefined;
   }

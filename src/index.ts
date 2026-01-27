@@ -6,26 +6,27 @@ const program = new Command();
 
 program
   .name("mdhtml")
-  .argument("<input>", "Input directory containing markdown files")
-  .option("-o, --output <dir>", "output filename or directory (default: output)")
-  .option("-t, --template <file>", "HTML template file (default: _template.html)")
+  .argument("<input>", "Input file or directory")
+  .option("-o, --output <path>", "output filename or directory")
+  .option("-t, --template <file>", "HTML template")
   .option("-w, --watch", "Run in watch mode")
   .option("-q, --quiet", "Run in quiet mode")
   .option("-c, --clean", "Delete output directory before conversion")
   .option("--math [file]", "Generate math stylesheet")
-  .action((input, options) => {
+  .action(async (input, options) => {
     const converter = new MdHtmlConverter({
-      template: options.template,
-      output: options.output,
       quiet: options.quiet,
       clean: options.clean,
       math: withDefaults(options.math, "math.css"),
     });
+
+    const template = options.template ?? "";
+    const output = options.output ?? "";
     
     if (options.watch === true) {
-      converter.watch(input);
+      await converter.watch(input, output, template);
     } else {
-      converter.convert(input);
+      await converter.convert(input, output, template);
     }
   });
 

@@ -15,12 +15,14 @@ type PrintFn = (...args: any[]) => void;
 export type Options = {
   quiet: boolean,     // Do not print successful log messages
   clean: boolean,     // Remove dst folder before conversion
+  stdout: boolean     // Output to stdout
   math?: string       // Output path to the stylesheet
 };
 
 const defaultOptions: Options = {
   quiet: false,
   clean: false,
+  stdout: false,
   math: undefined,
 };
 
@@ -56,6 +58,9 @@ export class MdHtmlConverter {
     else {
       if (output === undefined || output.trim().length === 0) {
         throw new Error("output dir is not specified");
+      }
+      if (this.#options.stdout === true) {
+        throw new Error("--stdout cannot be used when input is a directory");
       }
     }
 
@@ -109,8 +114,11 @@ export class MdHtmlConverter {
   }
 
   async convertSingle(input: FilePath, output: string, template: HtmlTemplate): Promise<void> {
+    if (this.#options.stdout === true) {
+      return this.convertToStdout(input, template);
+    }
+
     const outputPath = FilePath.new(output);
-    
     // If output path already exists as directory, throw error.
     // The only exception is when output is empty, then use stdout.
     if (outputPath.exists() && outputPath.isDir()) {

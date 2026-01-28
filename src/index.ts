@@ -13,10 +13,12 @@ program
   .option("-q, --quiet", "Run in quiet mode")
   .option("-c, --clean", "Delete output directory before conversion")
   .option("--math [file]", "Generate math stylesheet")
+  .option("--stdout", "Print to stdout (file mode only)")
   .action(async (input, options) => {
     const converter = new MdHtmlConverter({
       quiet: options.quiet,
       clean: options.clean,
+      stdout: options.stdout,
       math: withDefaults(options.math, "math.css"),
     });
 

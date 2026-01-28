@@ -27,17 +27,17 @@ const defaultOptions: Options = {
 export class MdHtmlConverter {
   #options: Options;
   #md: CMarkdown;
-  #linkResolver: MdLinkResolver;
+  #pathProvider: PathProvider;
   #tmplProvider: TemplateProvider;
   #print: PrintFn;
 
   constructor(args?: Partial<Options>) {
     this.#options = { ...defaultOptions, ...args };
     this.#tmplProvider = new TemplateProvider();
-    this.#linkResolver = new MdLinkResolver();
+    this.#pathProvider = new PathProvider();
     this.#print = this.#options.quiet ? () => {} : console.log;
     this.#md = new CMarkdown({
-      linkRewrite: this.#linkResolver.rewriteLink.bind(this.#linkResolver),
+      linkRewrite: this.#pathProvider.rewriteLink.bind(this.#pathProvider),
     });
   }
 
@@ -45,26 +45,26 @@ export class MdHtmlConverter {
     const tmpl = await this.#tmplProvider.resolveTemplate(template);
     const inputPath = PathUtils.open(input);
     if (inputPath.kind === "file") {
-      this.#linkResolver.configure(DirPath.cwd(), DirPath.cwd());
+      this.#pathProvider.configureForSingle();
       await this.convertSingle(inputPath, output, tmpl);
     }
     else if (inputPath.kind === "dir") {
-      const outputPath = DirPath.new(output);
-      this.#linkResolver.configure(inputPath, outputPath);
-      await this.convertDir(inputPath, outputPath, tmpl);
+      const outputDir = DirPath.new(output);
+      this.#pathProvider.configure(inputPath, outputDir);
+      await this.convertDir(inputPath, outputDir, tmpl);
     }
   }
 
   async watch(input: string, output: string, template: string): Promise<void> {
     const inputPath = PathUtils.open(input);
     if (inputPath.kind === "file") {
-      this.#linkResolver.configure(DirPath.cwd(), DirPath.cwd());
+      this.#pathProvider.configureForSingle();
       await this.watchSingle(inputPath, output, template);
     }
     else if (inputPath.kind === "dir") {
-      const outputPath = DirPath.new(output);
-      this.#linkResolver.configure(inputPath, outputPath);
-      await this.watchDir(inputPath, outputPath, template);
+      const outputDir = DirPath.new(output);
+      this.#pathProvider.configure(inputPath, outputDir);
+      await this.watchDir(inputPath, outputDir, template);
     }
   }
 
@@ -193,7 +193,7 @@ export class MdHtmlConverter {
 
   async #writeMathcss(): Promise<void> {
     if (this.#options.math !== undefined) {
-      const dstPath = this.#linkResolver.relativeFromOutput(this.#options.math);
+      const dstPath = this.#pathProvider.relativeFromOutput(this.#options.math);
       await dstPath.parent.mkdir();
       await writeFile(dstPath.absPath, this.#md.mathcss());
       this.#print("wrote:", dstPath.location);
@@ -201,30 +201,38 @@ export class MdHtmlConverter {
   }
 }
 
-export class MdLinkResolver {
+export class PathProvider {
 
-  #inputRef = DirPath.new("");
-  #outputRef = DirPath.new("");
+  #inputDir = DirPath.new(process.cwd());
+  #outputDir = DirPath.new(process.cwd());
   constructor() {}
 
+  get inputDir(): DirPath { return this.#inputDir; }
+  get outputDir(): DirPath { return this.#outputDir; }
+
+  configureForSingle() {
+    this.#inputDir = DirPath.cwd();
+    this.#outputDir = DirPath.cwd();
+  }
+
   configure(input: DirPath, output: DirPath) {
-    this.#inputRef = input;
-    this.#outputRef = output;
+    this.#inputDir = input;
+    this.#outputDir = output;
   }
 
   relativeFromInput(path: string): FilePath {
     if (path.startsWith("@/")) {
-      return FilePath.new(path.substring(2), this.#inputRef);
+      return FilePath.new(path.substring(2), this.#inputDir);
     } else {
-      return FilePath.new(path, this.#inputRef);
+      return FilePath.new(path, this.#inputDir);
     }
   }
 
   relativeFromOutput(path: string): FilePath {
     if (path.startsWith("@/")) {
-      return FilePath.new(path.substring(2), this.#outputRef);
+      return FilePath.new(path.substring(2), this.#outputDir);
     } else {
-      return FilePath.new(path, this.#outputRef);
+      return FilePath.new(path, this.#outputDir);
     }
   }
 

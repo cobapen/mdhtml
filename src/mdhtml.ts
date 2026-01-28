@@ -25,16 +25,17 @@ const defaultOptions: Options = {
 };
 
 export class MdHtmlConverter {
+  #options: Options;
   #md: CMarkdown;
   #linkResolver: MdLinkResolver;
   #tmplProvider: TemplateProvider;
   #print: PrintFn;
 
   constructor(args?: Partial<Options>) {
-    const options = { ...defaultOptions, ...args };
+    this.#options = { ...defaultOptions, ...args };
     this.#tmplProvider = new TemplateProvider();
     this.#linkResolver = new MdLinkResolver();
-    this.#print = options.quiet ? () => {} : console.log;
+    this.#print = this.#options.quiet ? () => {} : console.log;
     this.#md = new CMarkdown({
       linkRewrite: this.#linkResolver.rewriteLink.bind(this.#linkResolver),
     });
@@ -92,8 +93,10 @@ export class MdHtmlConverter {
   }
 
   async convertDir(inputDir: DirPath, outputDir: DirPath, template: HtmlTemplate): Promise<void> {
+    if (this.#options.clean) {
+      await outputDir.clean();
+    }
     const files = await inputDir.readdir();
-
     const promises = files.map(async file => {
       // parentPath in dirent is absolute here. For 
       // We need relative file path "from inputDir".

@@ -149,7 +149,7 @@ describe.sequential("Conversion Tests", () => {
       name: "single file with output (no ext)",
       input: fpath.file_md,
       output: fpath.output,
-      template: "",
+      template: undefined,
       verify: [
         expectFileExists(fpath.output),
         expectConvertLogPrinted(fpath.output),
@@ -160,7 +160,7 @@ describe.sequential("Conversion Tests", () => {
       name: "single file --> output.html",
       input: fpath.file_md,
       output: fpath.output_html,
-      template: "",
+      template: undefined,
       verify: [
         expectFileExists(fpath.output_html),
         expectConvertLogPrinted(fpath.output_html),
@@ -171,7 +171,7 @@ describe.sequential("Conversion Tests", () => {
       name: "single file --> output.xxx",
       input: fpath.file_md,
       output: fpath.output_xxx,
-      template: "",
+      template: undefined,
       verify: [
         expectFileExists(fpath.output_xxx),
         expectConvertLogPrinted(fpath.output_xxx),
@@ -182,7 +182,7 @@ describe.sequential("Conversion Tests", () => {
       name: "single file --> /output.html (abs path)",
       input: fpath.file_md,
       output: "/xxx/output.html",
-      template: "",
+      template: undefined,
       verify: [
         expectFileExists(resolve("/xxx/output.html")),
         expectConvertLogPrinted(resolve("/xxx/output.html")),
@@ -217,7 +217,7 @@ describe.sequential("Conversion Tests", () => {
       name: "single file with quiet mode",
       input: fpath.file_md,
       output: fpath.file_html,
-      template: "",
+      template: undefined,
       options: { quiet: true },
       verify: [
         expectFileExists(fpath.file_html),
@@ -229,7 +229,7 @@ describe.sequential("Conversion Tests", () => {
     //   name: "single file with math option",
     //   input: fpath.file_md,
     //   output: fpath.file_html,
-    //   template: "",
+    //   template: undefined,
     //   options: { math: "math.css" },
     //   verify: [
     //     expectFileExists(fpath.file_html),
@@ -243,7 +243,7 @@ describe.sequential("Conversion Tests", () => {
     // //   name: "single file with math option (full)",
     // //   input: fpath.file_md,
     // //   output: fpath.file_html,
-    // //   template: "",
+    // //   template: undefined,
     // //   options: { math: "math.css:full" },
     // //   verify: [
     // //     expectFileExists(fpath.file_html),
@@ -265,7 +265,7 @@ describe.sequential("Conversion Tests", () => {
       name: "single file with clean option (?)",
       input: fpath.file_md,
       output: fpath.file_html,
-      template: "",
+      template: undefined,
       options: { clean: true },
       verify: [
         expectFileExists(fpath.file_html),
@@ -282,7 +282,7 @@ describe.sequential("Conversion Tests", () => {
       name: "input directory (no template)",
       input: fpath.input_dir,
       output: fpath.output,
-      template: "",
+      template: undefined,
       verify: [
         expectVolume(vol => {
           console.log(vol.toJSON(fpath.output));
@@ -308,7 +308,7 @@ describe.sequential("Conversion Tests", () => {
     //   name: "input directory with math option",
     //   input: fpath.subdir_name,
     //   output: fpath.output,
-    //   template: "",
+    //   template: undefined,
     //   options: { math: "math.css" },
     //   verify: [
     //     expectFileExists("output/_template.html"),
@@ -320,7 +320,7 @@ describe.sequential("Conversion Tests", () => {
     //   name: "input directory with math option (full)",
     //   input: fpath.subdir_name,
     //   output: fpath.output,
-    //   template: "",
+    //   template: undefined,
     //   options: { math: "math.css:full" },
     //   verify: [
     //     expectFileExists("output/_template.html"),
@@ -333,7 +333,7 @@ describe.sequential("Conversion Tests", () => {
   validTestPatterns.forEach(({ name, input, output, template, options, verify }) => {
     it(name, async () => {
       const converter = createConverter(options);
-      await converter.convert(input, output ?? "", template ?? "");
+      await converter.convert(input, output, template);
       for (const check of verify) {
         await check();
       }

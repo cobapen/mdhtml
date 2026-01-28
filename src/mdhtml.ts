@@ -15,13 +15,13 @@ type PrintFn = (...args: any[]) => void;
 export type Options = {
   quiet: boolean,     // Do not print successful log messages
   clean: boolean,     // Remove dst folder before conversion
-  math: string        // Output path to the stylesheet
+  math?: string       // Output path to the stylesheet
 };
 
 const defaultOptions: Options = {
   quiet: false,
   clean: false,
-  math: "math.css",
+  math: undefined,
 };
 
 export class MdHtmlConverter {

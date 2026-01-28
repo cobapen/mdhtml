@@ -139,31 +139,7 @@ export class DirPath extends ResolvedPath {
   }
 }
 
-export class PathProvider {
-  readonly input: string;
-  readonly output: string;
 
-  constructor(input: string, output: string) {
-    this.input = input.trim();
-    this.output = output.trim();
-  }
-
-  get inputFile(): FilePath {
-    return FilePath.new(this.input);
-  }
-  get inputDir(): DirPath {
-    return DirPath.new(this.input);
-  }
-  get outputFile(): FilePath {
-    return FilePath.new(this.output);
-  }
-  get outputDir(): DirPath {
-    return DirPath.new(this.output);
-  }
-  outputDefined(): boolean {
-    return this.output.length > 0;
-  }
-}
 
 /**
  * Remove directory contents recursively.

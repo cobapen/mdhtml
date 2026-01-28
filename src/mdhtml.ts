@@ -5,8 +5,9 @@ import { Readable, Writable } from "node:stream";
 import { pipeline } from "node:stream/promises";
 import { CMarkdown } from "@cobapen/markdown";
 import chokidar from "chokidar";
+import Token from "markdown-it/lib/token.mjs";
 import mustache from "mustache";
-import { DirPath, FilePath, PathUtils } from "./pathutil.js";
+import { DirPath, FilePath, PathUtils, ResolvedPath } from "./pathutil.js";
 import { HtmlTemplate, TemplateProvider } from "./template.js";
 
 type PrintFn = (...args: any[]) => void;
@@ -22,27 +23,33 @@ const defaultOptions: Options = {
   clean: false,
   math: "math.css",
 };
+
 export class MdHtmlConverter {
   #md: CMarkdown;
-  // #_pathProvider: PathProvider;
+  #linkResolver: MdLinkResolver;
   #tmplProvider: TemplateProvider;
   #print: PrintFn;
 
   constructor(args?: Partial<Options>) {
     const options = { ...defaultOptions, ...args };
     this.#tmplProvider = new TemplateProvider();
-    this.#md = new CMarkdown();
+    this.#linkResolver = new MdLinkResolver();
     this.#print = options.quiet ? () => {} : console.log;
+    this.#md = new CMarkdown({
+      linkRewrite: this.#linkResolver.rewriteLink.bind(this.#linkResolver),
+    });
   }
 
   async convert(input: string, output: string, template: string): Promise<void> {
     const tmpl = await this.#tmplProvider.resolveTemplate(template);
     const inputPath = PathUtils.open(input);
     if (inputPath.kind === "file") {
+      this.#linkResolver.configure(inputPath.parent);
       await this.convertSingle(inputPath, output, tmpl);
     }
     else if (inputPath.kind === "dir") {
       const outputPath = DirPath.new(output);
+      this.#linkResolver.configure(inputPath);
       await this.convertDir(inputPath, outputPath, tmpl);
     }
   }
@@ -50,10 +57,12 @@ export class MdHtmlConverter {
   async watch(input: string, output: string, template: string): Promise<void> {
     const inputPath = PathUtils.open(input);
     if (inputPath.kind === "file") {
+      this.#linkResolver.configure(inputPath.parent);
       await this.watchSingle(inputPath, output, template);
     }
     else if (inputPath.kind === "dir") {
       const outputPath = DirPath.new(output);
+      this.#linkResolver.configure(inputPath);
       await this.watchDir(inputPath, outputPath, template);
     }
   }
@@ -159,7 +168,9 @@ export class MdHtmlConverter {
 
   async renderFileWithTemplate(file: FilePath, w: Writable, tmpl: HtmlTemplate): Promise<void> {
     const content = await readFile(file.absPath, "utf-8");
-    const html = this.#md.render(content);
+    const html = this.#md.render(content, {
+      file: file.location,
+    });
     const outputHtml = mustache.render(tmpl.content, {
       title: file.filename,
       content: html
@@ -168,3 +179,34 @@ export class MdHtmlConverter {
   }
 }
 
+export class MdLinkResolver {
+
+  #inputRef = DirPath.new("");
+  constructor() {}
+
+  configure(input: DirPath) {
+    this.#inputRef = input;
+  }
+
+  /**
+   * Resolve markdown links. Absolute links are converted to relative links.
+   */
+  resolve(file: string, link: string): string {
+    if (link.startsWith("@/")) {
+      const filePath = FilePath.new(file);
+      const target = ResolvedPath.new(link.substring(2), this.#inputRef);
+      link = target.pathFrom(filePath.parent).replace(/\\/g, "/");
+    }
+    return link;
+  }
+
+  rewriteLink(link: string, env: any, _token: Token) {
+    if (env.file !== undefined) {
+      link = this.resolve(env.file, link);
+    }
+    if (!link.startsWith("http") && link.endsWith(".md")) {
+      link = link.replace(/\.md$/i, ".html");
+    }
+    return link;
+  }
+}

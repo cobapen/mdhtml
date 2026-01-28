@@ -17,7 +17,7 @@ import { Writable } from "node:stream";
  */
 export class ResolvedPath {
   readonly raw: string;     
-  readonly srcDir: string;
+  readonly srcDir: string; // track this because if input is "../", srcDir gets lost.
   readonly absPath: string;
 
   /** Create new instance from path like strings */
@@ -57,7 +57,7 @@ export class ResolvedPath {
     return path.isAbsolute(path.normalize(this.raw));
   }
   pathFrom(from: string|ResolvedPath): string {
-    //
+    // Normalize the path because path.relative may return zero-length string.
     return path.normalize(path.relative(from.toString() + path.sep, this.absPath));
   }
   toString(): string {
@@ -73,7 +73,7 @@ export class FilePath extends ResolvedPath {
   constructor(input: string|FilePath, srcDir?: string|DirPath) {
     if (input instanceof FilePath) {
       const chdir = srcDir ?? input.srcDir;
-      super(input.pathFrom(chdir), chdir);
+      super(input.pathFrom(chdir), chdir);    // recalculate relative path
     } else {
       super(input, srcDir);
     }

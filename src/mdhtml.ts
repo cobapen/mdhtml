@@ -36,15 +36,13 @@ export class MdHtmlConverter {
   }
 
   async convert(input: string, output: string, template: string): Promise<void> {
-
     const tmpl = await this.#tmplProvider.resolveTemplate(template);
-
     const inputPath = PathUtils.open(input);
     if (inputPath.kind === "file") {
       await this.convertSingle(inputPath, output, tmpl);
     }
     else if (inputPath.kind === "dir") {
-      const outputPath = new DirPath(output);
+      const outputPath = DirPath.new(output);
       await this.convertDir(inputPath, outputPath, tmpl);
     }
   }
@@ -55,17 +53,15 @@ export class MdHtmlConverter {
       await this.watchSingle(inputPath, output, template);
     }
     else if (inputPath.kind === "dir") {
-      const outputPath = new DirPath(output);
+      const outputPath = DirPath.new(output);
       await this.watchDir(inputPath, outputPath, template);
     }
   }
 
   async convertSingle(input: FilePath, output: string, template: HtmlTemplate): Promise<void> {
-
     if (output === undefined)
       output = "";
-
-    const outputPath = new FilePath(output);
+    const outputPath = FilePath.new(output);
     let w: Writable;
     
     // If output path already exists as directory, throw error.
@@ -94,17 +90,17 @@ export class MdHtmlConverter {
       // We need relative file path "from inputDir".
       const filePath = file.parentPath + "/" + file.name;
       const relPath = path.relative(inputDir.absPath, filePath);
-      const srcFile = new FilePath(relPath, inputDir);
+      const srcFile = FilePath.new(relPath, inputDir);
 
       if (srcFile.ext === ".md") {
-        const outputPath = new FilePath(relPath.replace(/\.md$/i, ".html"), outputDir);
+        const outputPath = FilePath.new(relPath.replace(/\.md$/i, ".html"), outputDir);
         await outputPath.parent.mkdir();
         const wstream = createWriteStream(outputPath.absPath);
         await this.renderFileWithTemplate(srcFile, wstream, template);
         this.#print("wrote:", outputPath.location);
       }
       else if (srcFile.isFile()) {
-        const outputPath = new FilePath(relPath, outputDir);
+        const outputPath = FilePath.new(relPath, outputDir);
         await outputPath.parent.mkdir();
         await copyFile(srcFile.absPath, outputPath.absPath, fs.constants.COPYFILE_FICLONE);
         this.#print("copied:", outputPath.location);

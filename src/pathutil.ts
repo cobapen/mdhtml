@@ -10,35 +10,44 @@ import { Writable } from "node:stream";
  * 
  * By using the absolute path as an anchor, the instance returns paths
  * relative from different roots.
- * 
- * - `absPath` is the absolute path.
- * - `relPath` is relative from the srcDir. 
- * - `location` is relative from process.cwd().
  */
 export class ResolvedPath {
   readonly raw: string;     
-  readonly srcDir: string; // track this because if input is "../", srcDir gets lost.
   readonly absPath: string;
 
+  constructor(raw: string, absPath: string) {
+    this.raw = raw.trim();
+    this.absPath = absPath.trim();
+  }
+
   /** Create new instance from path like strings */
-  constructor(input: string, srcDir?: string|DirPath) {
-    this.raw = input.trim();
-    this.srcDir = srcDir instanceof DirPath
-      ? srcDir.absPath
-      : path.resolve(srcDir ?? process.cwd());
-    this.absPath = path.resolve(this.srcDir, input);
+  static new<T extends typeof ResolvedPath>(this: T, input: string|ResolvedPath, srcDir?: string|DirPath): InstanceType<T> {
+    if (input === undefined || input === null) {
+      throw new Error("input is undefined or null");
+    }
+    else if (input instanceof ResolvedPath) {
+      if (srcDir === undefined) {
+        return new this(input.raw, input.absPath) as InstanceType<T>;
+      } else {
+        const raw = this.relative(srcDir, input);
+        return new this(raw, input.absPath) as InstanceType<T>;
+      }
+    } 
+    else {
+      const absPath = path.resolve(srcDir?.toString() ?? process.cwd(), input);
+      return new this(input, absPath) as InstanceType<T>;
+    }
   }
-  /** Return clean relative path from srcDir (or absolute) */
-  get path(): string { 
-    return this.isAbsolute()
-      ? this.absPath
-      : this.pathFrom(this.srcDir);
-  }
+
+
   /** Return clean relative path from cwd (or absolute) */
   get location(): string { 
-    return this.isAbsolute()
-      ? this.absPath
-      : this.pathFrom(process.cwd());
+    return this.getPath(process.cwd());
+  }
+
+  /** Return relative path from dir, or absolute path if external */
+  getPath(dir: string|ResolvedPath): string {
+    return this.isAbsolute() ? this.absPath : this.pathFrom(dir);
   }
   
   exists(): boolean {
@@ -57,11 +66,16 @@ export class ResolvedPath {
     return path.isAbsolute(path.normalize(this.raw));
   }
   pathFrom(from: string|ResolvedPath): string {
-    // Normalize the path because path.relative may return zero-length string.
-    return path.normalize(path.relative(from.toString() + path.sep, this.absPath));
+    return ResolvedPath.relative(from, this.absPath);
   }
+    
   toString(): string {
     return this.absPath;
+  }
+
+  static relative(from: string|ResolvedPath, to: string|ResolvedPath): string {
+    // normalize because path.relative may return zero-length string
+    return path.normalize(path.relative(from.toString(), to.toString()));
   }
 }
 
@@ -70,14 +84,6 @@ export class ResolvedPath {
  */
 export class FilePath extends ResolvedPath {
   readonly kind = "file";
-  constructor(input: string|FilePath, srcDir?: string|DirPath) {
-    if (input instanceof FilePath) {
-      const chdir = srcDir ?? input.srcDir;
-      super(input.pathFrom(chdir), chdir);    // recalculate relative path
-    } else {
-      super(input, srcDir);
-    }
-  }
 
   get filename(): string {
     return path.basename(this.absPath);
@@ -86,17 +92,21 @@ export class FilePath extends ResolvedPath {
     return path.extname(this.absPath).toLowerCase();
   }
   get parent(): DirPath {
-    return new DirPath(path.dirname(this.absPath));
+    const raw = path.normalize(path.join(this.raw, ".."));
+    const abs = path.resolve(path.join(this.absPath, ".."));
+    return new DirPath(raw, abs);
   }
   getWriteStream(): Writable {
     return createWriteStream(this.absPath);
   }
   /** Return new instance with different source directory */
   chdir(dir: string|DirPath): FilePath {
-    return new FilePath(this, dir.toString());
+    return FilePath.new(this.getPath(dir), dir);
   }
   rename(re: RegExp, to: string): FilePath {
-    return new FilePath(this.path.replace(re, to), this.srcDir);
+    const raw = this.raw.replace(re, to);
+    const abs = this.absPath.replace(re, to);
+    return new FilePath(raw, abs);
   }
 }
 
@@ -105,14 +115,7 @@ export class FilePath extends ResolvedPath {
  */
 export class DirPath extends ResolvedPath {
   readonly kind = "dir";
-  constructor(input: string|DirPath, srcDir?: string|DirPath) {
-    if (input instanceof DirPath) {
-      const chdir = srcDir ?? input.srcDir;
-      super(input.pathFrom(chdir), chdir);
-    } else {
-      super(input, srcDir);
-    }
-  }
+
   async mkdir(): Promise<void> {
     await mkdir(this.absPath, { recursive: true });
   }
@@ -132,7 +135,7 @@ export class DirPath extends ResolvedPath {
 
   /** Return new instance with different source directory */
   chdir(dir: string|DirPath): DirPath {
-    return new DirPath(this, dir.toString());
+    return DirPath.new(this.getPath(dir), dir);
   }
 }
 
@@ -146,16 +149,16 @@ export class PathProvider {
   }
 
   get inputFile(): FilePath {
-    return new FilePath(this.input);
+    return FilePath.new(this.input);
   }
   get inputDir(): DirPath {
-    return new DirPath(this.input);
+    return DirPath.new(this.input);
   }
   get outputFile(): FilePath {
-    return new FilePath(this.output);
+    return FilePath.new(this.output);
   }
   get outputDir(): DirPath {
-    return new DirPath(this.output);
+    return DirPath.new(this.output);
   }
   outputDefined(): boolean {
     return this.output.length > 0;
@@ -183,7 +186,7 @@ export async function cleanDir(dir: string) {
 export class PathUtils {
   /** Open existing file */
   static open(input: string): FilePath | DirPath {
-    return statSync(input).isFile() ? new FilePath(input) : new DirPath(input);
+    return statSync(input).isFile() ? FilePath.new(input) : DirPath.new(input);
   }
   static isFilePath(path: FilePath | DirPath): path is FilePath {
     return path.kind === "file";

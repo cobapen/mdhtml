@@ -9,6 +9,30 @@ export class HtmlTemplate {
   }
 }
 
+const fallbackTemplate = new HtmlTemplate(`<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{title}}</title>
+</head>
+<body>
+{{{content}}}
+</body>
+</html>
+`);
+
+const noneTemplate = new HtmlTemplate("{{{content}}}");
+
+const predefinedTemplateNames = ["none", "default", "fallback"] as const;
+type EmbedTemplateName = typeof predefinedTemplateNames[number];
+
+const predefinedTemplates = {
+  none: noneTemplate,
+  default: fallbackTemplate,
+  fallback: fallbackTemplate,
+} satisfies Record<EmbedTemplateName, HtmlTemplate>;
+
 type ResolveTemplateArgs = {
   srcDir: string,
   useCache: boolean
@@ -20,12 +44,19 @@ export class TemplateProvider {
     this.cache = {};
   }
 
+  static get embed(): Record<EmbedTemplateName, HtmlTemplate> { return predefinedTemplates; }
+  static get defaultTemplateName(): EmbedTemplateName { return "default"; }
+
+  isPredefined(name: string): name is EmbedTemplateName {
+    return predefinedTemplateNames.includes(name as EmbedTemplateName);
+  }
+
   async resolveTemplate(template: string, args?: Partial<ResolveTemplateArgs>): Promise<HtmlTemplate> {
     const _srcDir = args?.srcDir ?? process.cwd();
     const useCache = args?.useCache ?? true;
 
     if (template === undefined || template.trim().length === 0) {
-      return embedTemplates.fallback;
+      return TemplateProvider.embed.fallback;
     }
     if (useCache && this.cache[template]) {
       return this.cache[template];
@@ -42,30 +73,6 @@ export class TemplateProvider {
     }
 
     console.warn(`Template file not found: ${template}`);
-    return embedTemplates.fallback;
+    return TemplateProvider.embed.fallback;
   }
 }
-
-const fallbackTemplate = new HtmlTemplate(`<!DOCTYPE html>
-<html lang="ja">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{{title}}</title>
-</head>
-<body>
-{{{content}}}
-</body>
-</html>
-`);
-
-const noneTemplate = new HtmlTemplate("{{{content}}}");
-
-const _embedTemplateNames = <const>["default", "fallback", "none"];
-type EmbedTemplateNames = typeof _embedTemplateNames[number];
-
-const embedTemplates = {
-  none: noneTemplate,
-  default: fallbackTemplate,
-  fallback: fallbackTemplate,
-} satisfies Record<EmbedTemplateNames, HtmlTemplate>;

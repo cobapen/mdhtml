@@ -137,6 +137,10 @@ export class DirPath extends ResolvedPath {
   chdir(dir: string|DirPath): DirPath {
     return DirPath.new(this.getPath(dir), dir);
   }
+
+  static cwd(): DirPath {
+    return DirPath.new("", process.cwd());
+  }
 }
 
 

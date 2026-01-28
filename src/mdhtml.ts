@@ -49,7 +49,7 @@ export class MdHtmlConverter {
       if (output === undefined) {
         // OK
       }
-      else if (output.trim().length === 0) { // undefined is OK
+      else if (output.trim().length === 0) {
         throw new Error("output file cannot be empty");
       }
     }

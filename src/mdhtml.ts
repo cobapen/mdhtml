@@ -1,5 +1,5 @@
 import fs, { createWriteStream, existsSync } from "node:fs";
-import { copyFile, readFile } from "node:fs/promises";
+import { copyFile, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { Readable, Writable } from "node:stream";
 import { pipeline } from "node:stream/promises";
@@ -7,7 +7,7 @@ import { CMarkdown } from "@cobapen/markdown";
 import chokidar from "chokidar";
 import Token from "markdown-it/lib/token.mjs";
 import mustache from "mustache";
-import { DirPath, FilePath, PathUtils, ResolvedPath } from "./pathutil.js";
+import { DirPath, FilePath, PathUtils } from "./pathutil.js";
 import { HtmlTemplate, TemplateProvider } from "./template.js";
 
 type PrintFn = (...args: any[]) => void;
@@ -45,12 +45,12 @@ export class MdHtmlConverter {
     const tmpl = await this.#tmplProvider.resolveTemplate(template);
     const inputPath = PathUtils.open(input);
     if (inputPath.kind === "file") {
-      this.#linkResolver.configure(inputPath.parent);
+      this.#linkResolver.configure(DirPath.cwd(), DirPath.cwd());
       await this.convertSingle(inputPath, output, tmpl);
     }
     else if (inputPath.kind === "dir") {
       const outputPath = DirPath.new(output);
-      this.#linkResolver.configure(inputPath);
+      this.#linkResolver.configure(inputPath, outputPath);
       await this.convertDir(inputPath, outputPath, tmpl);
     }
   }
@@ -58,38 +58,44 @@ export class MdHtmlConverter {
   async watch(input: string, output: string, template: string): Promise<void> {
     const inputPath = PathUtils.open(input);
     if (inputPath.kind === "file") {
-      this.#linkResolver.configure(inputPath.parent);
+      this.#linkResolver.configure(DirPath.cwd(), DirPath.cwd());
       await this.watchSingle(inputPath, output, template);
     }
     else if (inputPath.kind === "dir") {
       const outputPath = DirPath.new(output);
-      this.#linkResolver.configure(inputPath);
+      this.#linkResolver.configure(inputPath, outputPath);
       await this.watchDir(inputPath, outputPath, template);
     }
   }
 
   async convertSingle(input: FilePath, output: string, template: HtmlTemplate): Promise<void> {
-    if (output === undefined)
-      output = "";
     const outputPath = FilePath.new(output);
-    let w: Writable;
     
     // If output path already exists as directory, throw error.
     // The only exception is when output is empty, then use stdout.
     if (outputPath.exists() && outputPath.isDir()) {
-      if (outputPath.raw.length > 0) {
+      if (outputPath.raw.length === 0) {
+        return this.convertToStdout(input, template);
+      }
+      else {
         throw new Error(`Error: output=${output} already exists as a directory.`);
       }
-      w = process.stdout;
     } 
-    else {
-      await outputPath.parent.mkdir();
-      w = outputPath.getWriteStream();
-    }
+    
+    await outputPath.parent.mkdir();
+    const w = outputPath.getWriteStream();
     await this.renderFileWithTemplate(input, w, template);
-    if (w !== process.stdout) {
-      this.#print("wrote:", outputPath.location);
+    
+    this.#print("wrote:", outputPath.location);
+
+    if (this.#options.math !== undefined) {
+      await this.#writeMathcss();
     }
+  }
+
+  async convertToStdout(input: FilePath, template: HtmlTemplate): Promise<void> {
+    const w: Writable = process.stdout;
+    await this.renderFileWithTemplate(input, w, template);
   }
 
   async convertDir(inputDir: DirPath, outputDir: DirPath, template: HtmlTemplate): Promise<void> {
@@ -119,6 +125,10 @@ export class MdHtmlConverter {
       }
     });
     await Promise.all(promises);
+
+    if (this.#options.math !== undefined) {
+      await this.#writeMathcss();
+    }
   }
 
 
@@ -179,6 +189,15 @@ export class MdHtmlConverter {
       content: html
     });
     await pipeline(Readable.from(outputHtml), w);
+  }
+
+  async #writeMathcss(): Promise<void> {
+    if (this.#options.math !== undefined) {
+      const dstPath = this.#linkResolver.relativeFromOutput(this.#options.math);
+      await dstPath.parent.mkdir();
+      await writeFile(dstPath.absPath, this.#md.mathcss());
+      this.#print("wrote:", dstPath.location);
+    }
   }
 }
 

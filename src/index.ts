@@ -1,6 +1,6 @@
 #! /usr/bin/env node
 import { Command } from "commander";
-import { MdHtmlConverter } from "./mdhtml.js";
+import { MdHtmlConverter, MdHtmlError } from "./mdhtml.js";
 
 const program = new Command();
 
@@ -25,10 +25,18 @@ program
     const template = options.template;
     const output = options.output;
     
-    if (options.watch === true) {
-      await converter.watch(input, output, template);
-    } else {
-      await converter.convert(input, output, template);
+    try {
+      if (options.watch === true) {
+        await converter.watch(input, output, template);
+      } else {
+        await converter.convert(input, output, template);
+      }
+    } catch (err: unknown) {
+      if (err instanceof MdHtmlError) {
+        console.error(`Error: ${err.message}`);
+      } else {
+        throw err;
+      }
     }
   });
 

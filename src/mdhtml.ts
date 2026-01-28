@@ -52,15 +52,15 @@ export class MdHtmlConverter {
         // OK
       }
       else if (output.trim().length === 0) {
-        throw new Error("output file cannot be empty");
+        throw new MdHtmlError("output file cannot be empty");
       }
     }
     else {
       if (output === undefined || output.trim().length === 0) {
-        throw new Error("output dir is not specified");
+        throw new MdHtmlError("output dir is not specified");
       }
       if (this.#options.stdout === true) {
-        throw new Error("--stdout cannot be used when input is a directory");
+        throw new MdHtmlError("--stdout cannot be used when input is a directory");
       }
     }
 
@@ -69,10 +69,10 @@ export class MdHtmlConverter {
       // OK
     }
     else if (template !== undefined && template.trim().length === 0) {
-      throw new Error("template name cannot be empty");
+      throw new MdHtmlError("template name cannot be empty");
     }
     else if (!this.#tmplProvider.isPredefined(template) && !FilePath.new(template).exists()) {
-      throw new Error(`template not found: ${template}`);
+      throw new MdHtmlError(`template not found: ${template}`);
     }
   }
   
@@ -126,7 +126,7 @@ export class MdHtmlConverter {
         return this.convertToStdout(input, template);
       }
       else {
-        throw new Error(`Error: output=${output} already exists as a directory.`);
+        throw new MdHtmlError(`Error: output=${output} already exists as a directory.`);
       }
     } 
     
@@ -305,3 +305,5 @@ export class PathProvider {
     }
   }
 }
+
+export class MdHtmlError extends Error {}

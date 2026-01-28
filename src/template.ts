@@ -72,6 +72,10 @@ export class TemplateProvider {
       }
     }
 
+    if (this.isPredefined(template)) {
+      return TemplateProvider.embed[template];
+    }
+
     console.warn(`Template file not found: ${template}`);
     return TemplateProvider.embed.fallback;
   }

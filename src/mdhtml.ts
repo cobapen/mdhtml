@@ -41,9 +41,45 @@ export class MdHtmlConverter {
     });
   }
 
-  async convert(input: string, output: string, template: string): Promise<void> {
-    const tmpl = await this.#tmplProvider.resolveTemplate(template);
+  checkArguments(input: string, output?: string, template?: string) {
     const inputPath = PathUtils.open(input);
+
+    // Check input and output. ---------------------------
+    if (inputPath.kind === "file") {
+      if (output === undefined) {
+        // OK
+      }
+      else if (output.trim().length === 0) { // undefined is OK
+        throw new Error("output file cannot be empty");
+      }
+    }
+    else {
+      if (output === undefined || output.trim().length === 0) {
+        throw new Error("output dir is not specified");
+      }
+    }
+
+    // Check template. --------------------------------------
+    if (template === undefined) {
+      // OK
+    }
+    else if (template !== undefined && template.trim().length === 0) {
+      throw new Error("template name cannot be empty");
+    }
+    else if (!this.#tmplProvider.isPredefined(template) && !FilePath.new(template).exists()) {
+      throw new Error(`template not found: ${template}`);
+    }
+  }
+  
+
+  async convert(input: string, output?: string, template?: string): Promise<void> {
+    this.checkArguments(input, output, template);
+    output = output ?? PathProvider.defaultOutput(input, output);
+    template = template ?? TemplateProvider.defaultTemplateName;
+    
+    const inputPath = PathUtils.open(input);
+    const tmpl = await this.#tmplProvider.resolveTemplate(template);    
+    
     if (inputPath.kind === "file") {
       this.#pathProvider.configureForSingle();
       await this.convertSingle(inputPath, output, tmpl);
@@ -55,7 +91,11 @@ export class MdHtmlConverter {
     }
   }
 
-  async watch(input: string, output: string, template: string): Promise<void> {
+  async watch(input: string, output?: string, template?: string): Promise<void> {
+    this.checkArguments(input, output, template);
+    output = output ?? PathProvider.defaultOutput(input, output);
+    template = template ?? TemplateProvider.defaultTemplateName;
+    
     const inputPath = PathUtils.open(input);
     if (inputPath.kind === "file") {
       this.#pathProvider.configureForSingle();
@@ -246,5 +286,14 @@ export class PathProvider {
       link = link.replace(/\.md$/i, ".html");
     }
     return link;
+  }
+
+  static defaultOutput(input: string, output?: string): string {
+    const inputPath = PathUtils.open(input);
+    if (output === undefined && inputPath.kind === "file") {
+      return path.basename(inputPath.filename, inputPath.ext) + ".html";
+    } else {
+      throw new Error("no default value defined");
+    }
   }
 }

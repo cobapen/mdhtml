@@ -20,8 +20,8 @@ program
       math: withDefaults(options.math, "math.css"),
     });
 
-    const template = options.template ?? "";
-    const output = options.output ?? "";
+    const template = options.template;
+    const output = options.output;
     
     if (options.watch === true) {
       await converter.watch(input, output, template);
@@ -47,3 +47,6 @@ function withDefaults<T>(option: string|boolean|undefined, defaultValue: T) {
   }
   return option;
 }
+
+
+

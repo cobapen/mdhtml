@@ -185,27 +185,35 @@ export class MdHtmlConverter {
 export class MdLinkResolver {
 
   #inputRef = DirPath.new("");
+  #outputRef = DirPath.new("");
   constructor() {}
 
-  configure(input: DirPath) {
+  configure(input: DirPath, output: DirPath) {
     this.#inputRef = input;
+    this.#outputRef = output;
   }
 
-  /**
-   * Resolve markdown links. Absolute links are converted to relative links.
-   */
-  resolve(file: string, link: string): string {
-    if (link.startsWith("@/")) {
-      const filePath = FilePath.new(file);
-      const target = ResolvedPath.new(link.substring(2), this.#inputRef);
-      link = target.pathFrom(filePath.parent).replace(/\\/g, "/");
+  relativeFromInput(path: string): FilePath {
+    if (path.startsWith("@/")) {
+      return FilePath.new(path.substring(2), this.#inputRef);
+    } else {
+      return FilePath.new(path, this.#inputRef);
     }
-    return link;
+  }
+
+  relativeFromOutput(path: string): FilePath {
+    if (path.startsWith("@/")) {
+      return FilePath.new(path.substring(2), this.#outputRef);
+    } else {
+      return FilePath.new(path, this.#outputRef);
+    }
   }
 
   rewriteLink(link: string, env: any, _token: Token) {
-    if (env.file !== undefined) {
-      link = this.resolve(env.file, link);
+    if (link.startsWith("@/") && env.file !== undefined && typeof env.file === "string") {
+      const filePath = FilePath.new(env.file);
+      const target = this.relativeFromInput(link);
+      link = target.pathFrom(filePath.parent).replace(/\\/g, "/");
     }
     if (!link.startsWith("http") && link.endsWith(".md")) {
       link = link.replace(/\.md$/i, ".html");

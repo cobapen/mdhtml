@@ -79,7 +79,7 @@ export class MdHtmlConverter {
 
   async convert(input: string, output?: string, template?: string): Promise<void> {
     this.checkArguments(input, output, template);
-    output = output ?? PathProvider.defaultOutput(input, output);
+    output = output ?? PathProvider.defaultOutput(input);
     template = template ?? TemplateProvider.defaultTemplateName;
     
     const inputPath = PathUtils.open(input);
@@ -98,7 +98,7 @@ export class MdHtmlConverter {
 
   async watch(input: string, output?: string, template?: string): Promise<void> {
     this.checkArguments(input, output, template);
-    output = output ?? PathProvider.defaultOutput(input, output);
+    output = output ?? PathProvider.defaultOutput(input);
     template = template ?? TemplateProvider.defaultTemplateName;
     
     const inputPath = PathUtils.open(input);
@@ -296,13 +296,9 @@ export class PathProvider {
     return link;
   }
 
-  static defaultOutput(input: string, output?: string): string {
-    const inputPath = PathUtils.open(input);
-    if (output === undefined && inputPath.kind === "file") {
-      return path.basename(inputPath.filename, inputPath.ext) + ".html";
-    } else {
-      throw new Error("no default value defined");
-    }
+  /** Get default output path. (Valid only for single mode) */
+  static defaultOutput(input: string): string {
+    return path.basename(input, path.extname(input)) + ".html";
   }
 }
 

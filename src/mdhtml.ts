@@ -5,7 +5,6 @@ import { Readable, Writable } from "node:stream";
 import { pipeline } from "node:stream/promises";
 import { CMarkdown } from "@cobapen/markdown";
 import chokidar from "chokidar";
-import Token from "markdown-it/lib/token.mjs";
 import mustache from "mustache";
 import { DirPath, FilePath, PathUtils } from "./pathutil.js";
 import { HtmlTemplate, TemplateProvider } from "./template.js";
@@ -28,9 +27,9 @@ const defaultOptions: Options = {
 
 export class MdHtmlConverter {
   #options: Options;
-  #md: CMarkdown;
   #pathProvider: PathProvider;
   #tmplProvider: TemplateProvider;
+  #mdr: MdHtmlRenderer;
   #print: PrintFn;
 
   constructor(args?: Partial<Options>) {
@@ -38,9 +37,7 @@ export class MdHtmlConverter {
     this.#tmplProvider = new TemplateProvider();
     this.#pathProvider = new PathProvider();
     this.#print = this.#options.quiet ? () => {} : console.log;
-    this.#md = new CMarkdown({
-      linkRewrite: this.#pathProvider.rewriteLink.bind(this.#pathProvider),
-    });
+    this.#mdr = new MdHtmlRenderer(new CMarkdown(), this.#pathProvider);
   }
 
   checkArguments(input: string, output?: string, template?: string) {
@@ -132,7 +129,7 @@ export class MdHtmlConverter {
     
     await outputPath.parent.mkdir();
     const w = outputPath.getWriteStream();
-    await this.renderFileWithTemplate(input, w, template);
+    await this.#mdr.renderFile(input, w, template);
     
     this.#print("wrote:", outputPath.location);
 
@@ -143,7 +140,7 @@ export class MdHtmlConverter {
 
   async convertToStdout(input: FilePath, template: HtmlTemplate): Promise<void> {
     const w: Writable = process.stdout;
-    await this.renderFileWithTemplate(input, w, template);
+    await this.#mdr.renderFile(input, w, template);
   }
 
   async convertDir(inputDir: DirPath, outputDir: DirPath, template: HtmlTemplate): Promise<void> {
@@ -162,7 +159,7 @@ export class MdHtmlConverter {
         const outputPath = FilePath.new(relPath.replace(/\.md$/i, ".html"), outputDir);
         await outputPath.parent.mkdir();
         const wstream = createWriteStream(outputPath.absPath);
-        await this.renderFileWithTemplate(srcFile, wstream, template);
+        await this.#mdr.renderFile(srcFile, wstream, template);
         this.#print("wrote:", outputPath.location);
       }
       else if (srcFile.isFile()) {
@@ -227,26 +224,59 @@ export class MdHtmlConverter {
     this.#print(`Watch started: ${inputDir}`);
   }
 
-  async renderFileWithTemplate(file: FilePath, w: Writable, tmpl: HtmlTemplate): Promise<void> {
-    const content = await readFile(file.absPath, "utf-8");
-    const html = this.#md.render(content, {
-      file: file.location,
-    });
-    const outputHtml = mustache.render(tmpl.content, {
-      title: file.filename,
-      content: html
-    });
-    await pipeline(Readable.from(outputHtml), w);
-  }
-
   async #writeMathcss(): Promise<void> {
     if (this.#options.math !== undefined) {
       const dstPath = this.#pathProvider.relativeFromOutput(this.#options.math);
-      await dstPath.parent.mkdir();
-      await writeFile(dstPath.absPath, this.#md.mathcss());
+      await this.#mdr.writeMathcss(dstPath);
       this.#print("wrote:", dstPath.location);
     }
   }
+
+  
+}
+
+export class MdHtmlRenderer {
+  #md: CMarkdown;
+  #pathProvider: PathProvider;
+  
+  constructor(md: CMarkdown, pathProvider: PathProvider) {
+    this.#md = md;
+    this.#pathProvider = pathProvider;
+  }
+
+  async renderFile(file: FilePath, w: Writable, template: HtmlTemplate): Promise<void> {
+    const content = await readFile(file.absPath, "utf-8");
+    return this.renderMarkdown(content, file, w, template);
+  }
+
+  async renderMarkdown(content: string, fileLocation: FilePath, w: Writable, template: HtmlTemplate): Promise<void> {
+    let html = this.#md.render(content, {
+      file: fileLocation.location,
+    });
+    html = mustache.render(template.content, {
+      title: fileLocation.filename,
+      content: html
+    });
+    html = this.replaceHtmlLinks(html, fileLocation);
+    await pipeline(Readable.from(html), w);
+  }
+
+  async writeMathcss(dstPath: FilePath): Promise<void> {
+    await dstPath.parent.mkdir();
+    await writeFile(dstPath.absPath, this.#md.mathcss());
+  }
+
+  replaceHtmlLinks(html: string, file: FilePath): string {
+    const regex = /(href|src)\s*=\s*["']([^"']+)["']/g;
+    return html.replace(regex, (match, attr: string, link: string) => {
+      if (link.startsWith("@/")) {
+        const target = this.#pathProvider.relativeFromInput(link);
+        const newLink = target.pathFrom(file.parent).replace(/\\/g, "/");
+        return `${attr}="${newLink}"`;
+      }
+      return match;
+    });
+  }  
 }
 
 export class PathProvider {
@@ -282,18 +312,6 @@ export class PathProvider {
     } else {
       return FilePath.new(path, this.#outputDir);
     }
-  }
-
-  rewriteLink(link: string, env: any, _token: Token) {
-    if (link.startsWith("@/") && env.file !== undefined && typeof env.file === "string") {
-      const filePath = FilePath.new(env.file);
-      const target = this.relativeFromInput(link);
-      link = target.pathFrom(filePath.parent).replace(/\\/g, "/");
-    }
-    if (!link.startsWith("http") && link.endsWith(".md")) {
-      link = link.replace(/\.md$/i, ".html");
-    }
-    return link;
   }
 
   /** Get default output path. (Valid only for single mode) */

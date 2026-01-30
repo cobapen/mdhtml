@@ -1,5 +1,7 @@
 import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
+import { defaultTemplate } from "./templates/default.js";
+import { plainTemplate } from "./templates/plain.js";
 
 export class HtmlTemplate {
   readonly content: string;
@@ -9,28 +11,13 @@ export class HtmlTemplate {
   }
 }
 
-const fallbackTemplate = new HtmlTemplate(`<!DOCTYPE html>
-<html lang="ja">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{{title}}</title>
-</head>
-<body>
-{{{content}}}
-</body>
-</html>
-`);
-
-const noneTemplate = new HtmlTemplate("{{{content}}}");
-
-const predefinedTemplateNames = ["none", "default", "fallback"] as const;
+const predefinedTemplateNames = ["none", "default", "plain"] as const;
 type EmbedTemplateName = typeof predefinedTemplateNames[number];
 
 const predefinedTemplates = {
-  none: noneTemplate,
-  default: fallbackTemplate,
-  fallback: fallbackTemplate,
+  none: new HtmlTemplate("{{{content}}}"),
+  default: new HtmlTemplate(defaultTemplate),
+  plain: new HtmlTemplate(plainTemplate),
 } satisfies Record<EmbedTemplateName, HtmlTemplate>;
 
 type ResolveTemplateArgs = {
@@ -56,7 +43,7 @@ export class TemplateProvider {
     const useCache = args?.useCache ?? true;
 
     if (template === undefined || template.trim().length === 0) {
-      return TemplateProvider.embed.fallback;
+      return TemplateProvider.embed.default;
     }
     if (useCache && this.cache[template]) {
       return this.cache[template];
@@ -77,6 +64,6 @@ export class TemplateProvider {
     }
 
     console.warn(`Template file not found: ${template}`);
-    return TemplateProvider.embed.fallback;
+    return TemplateProvider.embed.default;
   }
 }

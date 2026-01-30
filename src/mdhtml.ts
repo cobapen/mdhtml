@@ -271,7 +271,7 @@ export class MdHtmlRenderer {
     return html.replace(regex, (match, attr: string, link: string) => {
       if (link.startsWith("@/")) {
         const target = this.#pathProvider.relativeFromInput(link);
-        const newLink = target.pathFrom(file.parent).replace(/\\/g, "/");
+        const newLink = target.getPath(file.parent).replace(/\\/g, "/");
         return `${attr}="${newLink}"`;
       }
       return match;

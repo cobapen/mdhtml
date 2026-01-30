@@ -289,11 +289,12 @@ export class MdHtmlConverter {
   
   async #writeMathcss(): Promise<void> {
     if (this.#options.math) {
-      const mathcss = this.#md.mathcss();
+      const mathcss = this.#md.mathcss()
+        .replace(/\n*$/, ""); // bug? remove empty lines at end of file
       if (this.#mathcache !== mathcss) {
         const dstPath = this.#pathProvider.relativeFromOutput(this.#options.math);
         await dstPath.parent.mkdir();
-        await writeFile(dstPath.absPath, this.#md.mathcss());
+        await writeFile(dstPath.absPath, mathcss);
         this.#printPath("wrote:", dstPath);
         this.#mathcache = mathcss;
       }

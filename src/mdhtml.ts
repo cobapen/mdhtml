@@ -1,7 +1,8 @@
-import fs, { createWriteStream, existsSync } from "node:fs";
+import fs, { existsSync } from "node:fs";
 import { copyFile, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { Readable, Writable } from "node:stream";
+import { text as readStreamAsText } from "node:stream/consumers";
 import { pipeline } from "node:stream/promises";
 import { CMarkdown } from "@cobapen/markdown";
 import chokidar from "chokidar";
@@ -29,15 +30,19 @@ export class MdHtmlConverter {
   #options: Options;
   #pathProvider: PathProvider;
   #tmplProvider: TemplateProvider;
+  #md: CMarkdown;
   #mdr: MdHtmlRenderer;
   #print: PrintFn;
+  #mathcache: string;
 
   constructor(args?: Partial<Options>) {
     this.#options = { ...defaultOptions, ...args };
     this.#tmplProvider = new TemplateProvider();
     this.#pathProvider = new PathProvider();
     this.#print = this.#options.quiet ? () => {} : console.log;
-    this.#mdr = new MdHtmlRenderer(new CMarkdown(), this.#pathProvider);
+    this.#md = new CMarkdown();
+    this.#mdr = new MdHtmlRenderer(this.#md, this.#pathProvider);
+    this.#mathcache = "";
   }
 
   checkArguments(input: string, output?: string, template?: string) {
@@ -57,7 +62,7 @@ export class MdHtmlConverter {
         throw new MdHtmlError("output dir is not specified");
       }
       if (this.#options.stdout === true) {
-        throw new MdHtmlError("--stdout cannot be used when input is a directory");
+        throw new MdHtmlError("--stdout cannot be used when input is directory");
       }
     }
 
@@ -73,7 +78,16 @@ export class MdHtmlConverter {
     }
   }
   
-
+  /**
+   * Convert markdown to HTML.
+   *  
+   * If input is file, the conversion mode is "single file mode".
+   * If input is directory, the conversion mode is "directory mode".
+   * 
+   * @param input     conversion source
+   * @param output    conversion output.
+   * @param template  template to use
+   */
   async convert(input: string, output?: string, template?: string): Promise<void> {
     this.checkArguments(input, output, template);
     output = output ?? PathProvider.defaultOutput(input);
@@ -93,6 +107,16 @@ export class MdHtmlConverter {
     }
   }
 
+  /**
+   * Watch to convert markdown.
+   *  
+   * If input is file, the conversion mode is "single file mode".
+   * If input is directory, the conversion mode is "directory mode".
+   * 
+   * @param input       conversion source
+   * @param output      conversion output
+   * @param template    template to use
+   */
   async watch(input: string, output?: string, template?: string): Promise<void> {
     this.checkArguments(input, output, template);
     output = output ?? PathProvider.defaultOutput(input);
@@ -110,27 +134,26 @@ export class MdHtmlConverter {
     }
   }
 
+  /**
+   * Convert single file.
+   * 
+   * In a single file conversion mode, one HTML file is generated. 
+   * The paths are relative from the working directory (cwd).
+   * 
+   * Stdout/Math options take effects and slightly changes the behavior.
+   * 
+   * @param input       markdown file path.
+   * @param output      output html file path.
+   * @param template    HTML template to use 
+   * @returns 
+   */
   async convertSingle(input: FilePath, output: string, template: HtmlTemplate): Promise<void> {
     if (this.#options.stdout === true) {
       return this.convertToStdout(input, template);
     }
 
     const outputPath = FilePath.new(output);
-    // If output path already exists as directory, throw error.
-    // The only exception is when output is empty, then use stdout.
-    if (outputPath.exists() && outputPath.isDir()) {
-      if (outputPath.raw.length === 0) {
-        return this.convertToStdout(input, template);
-      }
-      else {
-        throw new MdHtmlError(`Error: output=${output} already exists as a directory.`);
-      }
-    } 
-    
-    await outputPath.parent.mkdir();
-    const w = outputPath.getWriteStream();
-    await this.#mdr.renderFile(input, w, template);
-    
+    await this.#mdr.writeFile(input, outputPath, template);
     this.#print("wrote:", outputPath.location);
 
     if (this.#options.math !== undefined) {
@@ -138,36 +161,40 @@ export class MdHtmlConverter {
     }
   }
 
+  /**
+   * Convert single file, and print output to stdout.
+   * 
+   * This method is same as `convertSingle`, but generates no files.
+   * 
+   * Other options does not take effects. 
+
+   * @param input       markdown file path
+   * @param template    template to use
+   */
   async convertToStdout(input: FilePath, template: HtmlTemplate): Promise<void> {
-    const w: Writable = process.stdout;
-    await this.#mdr.renderFile(input, w, template);
+    await this.#mdr.writeStream(input, process.stdout, template);
   }
 
+  /**
+   * Convert all markdown files in the input directory.
+   * 
+   * In this mode, input must be a directory. Markdown files are converted to 
+   * HTML, other files are copied without modified. 
+   * 
+   * Stdout option cannot be used in this mode.
+   * 
+   * @param inputDir    input directory path
+   * @param outputDir   ouput directory path
+   * @param template    template to use
+   */
   async convertDir(inputDir: DirPath, outputDir: DirPath, template: HtmlTemplate): Promise<void> {
     if (this.#options.clean) {
       await outputDir.clean();
     }
     const files = await inputDir.readdir();
     const promises = files.map(async file => {
-      // parentPath in dirent is absolute here. For 
-      // We need relative file path "from inputDir".
-      const filePath = file.parentPath + "/" + file.name;
-      const relPath = path.relative(inputDir.absPath, filePath);
-      const srcFile = FilePath.new(relPath, inputDir);
-
-      if (srcFile.ext === ".md") {
-        const outputPath = FilePath.new(relPath.replace(/\.md$/i, ".html"), outputDir);
-        await outputPath.parent.mkdir();
-        const wstream = createWriteStream(outputPath.absPath);
-        await this.#mdr.renderFile(srcFile, wstream, template);
-        this.#print("wrote:", outputPath.location);
-      }
-      else if (srcFile.isFile()) {
-        const outputPath = FilePath.new(relPath, outputDir);
-        await outputPath.parent.mkdir();
-        await copyFile(srcFile.absPath, outputPath.absPath, fs.constants.COPYFILE_FICLONE);
-        this.#print("copied:", outputPath.location);
-      }
+      const filePath = FilePath.new(file.parentPath + "/" + file.name);
+      await this.#transform(filePath, template);
     });
     await Promise.all(promises);
 
@@ -176,8 +203,15 @@ export class MdHtmlConverter {
     }
   }
 
-
-
+  /**
+   * Start watch mode for single file.
+   * 
+   * The method converts the file once, and start watching the file.
+   * 
+   * @param input     markdown file path
+   * @param output    output html file path
+   * @param template 
+   */
   async watchSingle(input: FilePath, output: string, template: string): Promise<void> {
     const tmpl = await this.#tmplProvider.resolveTemplate(template);
     await this.convertSingle(input, output, tmpl);
@@ -196,11 +230,23 @@ export class MdHtmlConverter {
     });
   }
 
+  /**
+   * Start watch mode.
+   * 
+   * The method converts all files first, then converts or copies the source
+   * files that have changed.
+   * 
+   * @param inputDir    input directory
+   * @param outputDir   output html directory
+   * @param template    template to use
+   */
   async watchDir(inputDir: DirPath, outputDir: DirPath, template: string): Promise<void> {
     const tmpl = await this.#tmplProvider.resolveTemplate(template);
     await this.convertDir(inputDir, outputDir, tmpl);
-    const renderOnChange = (filepath: string) => {
-      console.log(filepath);
+    const renderOnChange = async (filepath: string) => {
+      const inputFile = FilePath.new(filepath);
+      await this.#transform(inputFile, tmpl);
+      await this.#writeMathcss();
     };
     const watchlist = [inputDir.absPath];
     if (existsSync(template)) {
@@ -224,32 +270,80 @@ export class MdHtmlConverter {
     this.#print(`Watch started: ${inputDir}`);
   }
 
+  async #transform(file: FilePath, template: HtmlTemplate): Promise<void> {
+    const relPath = file.getPath(this.#pathProvider.inputDir);
+    const outDir = this.#pathProvider.outputDir;
+
+    if (file.ext === ".md") {
+      const outputPath = FilePath.new(relPath.replace(/\.md$/i, ".html"), outDir);
+      await this.#mdr.writeFile(file, outputPath, template);
+      this.#printPath("wrote:", outputPath);
+    }
+    else if (file.isFile()) {
+      const outputPath = FilePath.new(relPath, outDir);
+      await outputPath.parent.mkdir();
+      await copyFile(file.absPath, outputPath.absPath, fs.constants.COPYFILE_FICLONE);
+      this.#printPath("copied:", outputPath);
+    }
+  }
+  
   async #writeMathcss(): Promise<void> {
-    if (this.#options.math !== undefined) {
+    if (this.#options.math && this.#mathcache === this.#md.mathcss()) {
       const dstPath = this.#pathProvider.relativeFromOutput(this.#options.math);
-      await this.#mdr.writeMathcss(dstPath);
-      this.#print("wrote:", dstPath.location);
+      await dstPath.parent.mkdir();
+      await writeFile(dstPath.absPath, this.#md.mathcss());
+      this.#printPath("wrote:", dstPath);
     }
   }
 
-  
+  #printPath(msg: string, file: FilePath, refDir: DirPath = this.#pathProvider.outputDir) {
+    const relPath = file.getPath(refDir);
+    const path = relPath.startsWith("..") ? file.absPath : relPath;
+    this.#print(msg, path);
+  }
 }
 
 export class MdHtmlRenderer {
-  #md: CMarkdown;
-  #pathProvider: PathProvider;
+  readonly #md: CMarkdown;
+  readonly #pathProvider: PathProvider;
   
   constructor(md: CMarkdown, pathProvider: PathProvider) {
     this.#md = md;
     this.#pathProvider = pathProvider;
   }
 
-  async renderFile(file: FilePath, w: Writable, template: HtmlTemplate): Promise<void> {
-    const content = await readFile(file.absPath, "utf-8");
-    return this.renderMarkdown(content, file, w, template);
+  /** Open file and write converted HTML to dst. */
+  async writeFile(file: FilePath, dst: FilePath|undefined, template: HtmlTemplate): Promise<void> {
+    if (dst === undefined) {
+      return this.writeStream(file, process.stdout, template);
+    } 
+    else {
+      await dst.parent.mkdir();
+      const w = dst.getWriteStream();
+      return this.writeStream(file, w, template);
+    }
   }
 
-  async renderMarkdown(content: string, fileLocation: FilePath, w: Writable, template: HtmlTemplate): Promise<void> {
+  /** Open file and write converted HTML to stream */
+  async writeStream(filePath: FilePath, w: Writable, template: HtmlTemplate): Promise<void> {
+    const content = await readFile(filePath.absPath, "utf-8");
+    return this.write(Readable.from(content), filePath, w, template);
+    
+  }
+
+  /** Convert markdown and write HTML to stream*/
+  async write(md: string|Readable, fileLocation: string|FilePath, w: Writable, template: HtmlTemplate, ): Promise<void> {
+    if (md instanceof Readable) { 
+      md = await readStreamAsText(md);
+    }
+    if (typeof fileLocation === "string") { 
+      fileLocation = FilePath.new(fileLocation);
+    }
+    const html = this.renderMarkdown(md, fileLocation, template);
+    await pipeline(Readable.from(html), w);
+  }
+
+  renderMarkdown(content: string, fileLocation: FilePath, template: HtmlTemplate) : string {
     let html = this.#md.render(content, {
       file: fileLocation.location,
     });
@@ -258,12 +352,7 @@ export class MdHtmlRenderer {
       content: html
     });
     html = this.replaceHtmlLinks(html, fileLocation);
-    await pipeline(Readable.from(html), w);
-  }
-
-  async writeMathcss(dstPath: FilePath): Promise<void> {
-    await dstPath.parent.mkdir();
-    await writeFile(dstPath.absPath, this.#md.mathcss());
+    return html;
   }
 
   replaceHtmlLinks(html: string, file: FilePath): string {

@@ -288,11 +288,15 @@ export class MdHtmlConverter {
   }
   
   async #writeMathcss(): Promise<void> {
-    if (this.#options.math && this.#mathcache === this.#md.mathcss()) {
-      const dstPath = this.#pathProvider.relativeFromOutput(this.#options.math);
-      await dstPath.parent.mkdir();
-      await writeFile(dstPath.absPath, this.#md.mathcss());
-      this.#printPath("wrote:", dstPath);
+    if (this.#options.math) {
+      const mathcss = this.#md.mathcss();
+      if (this.#mathcache !== mathcss) {
+        const dstPath = this.#pathProvider.relativeFromOutput(this.#options.math);
+        await dstPath.parent.mkdir();
+        await writeFile(dstPath.absPath, this.#md.mathcss());
+        this.#printPath("wrote:", dstPath);
+        this.#mathcache = mathcss;
+      }
     }
   }
 

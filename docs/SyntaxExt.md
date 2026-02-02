@@ -38,30 +38,17 @@ This line has a footnote[^ref]
 
 ## Link-Rewrite
 
-This [links](./index.md) to top page
+This [links](./index.md) to top page (Rewrites .md to .html)
 
 ```md
-This [links](./index.md) to top page
+This [links](./index.md) to top page (Rewrites .md to .html)
 ```
 
 ## Code
 
-title
+title, linenumber
 
-```c++ title="main.cpp"
-#include <iostream>
-using namespace std;
-
-int main(int argc, char** argv)
-{
-    // greeting
-    return cout << "Hello World!" << endkl;;
-}
-```
-
-linenumber
-
-```rust title="main.rs" linestart=0
+```rust title="main.rs" linestart=1
 fn calculate_factorial(n: u32) -> u32 {
   (1..=n).product()
 }
@@ -72,6 +59,56 @@ fn main() {
   println!("The factorial of {} is {}", number, result);
 }
 ```
+
+``````md
+```rust title="main.rs" linestart=1
+fn calculate_factorial(n: u32) -> u32 {
+  (1..=n).product()
+}
+
+fn main() {
+  let number = 5;
+  let result = calculate_factorial(number);
+  println!("The factorial of {} is {}", number, result);
+}
+```
+``````
+
+## Table
+
+```table cols=3 rows=4 header-cols=1 header-rows=2
+r2^| Name
+c2^| Score
+
+| Math
+| English
+
+| Alice
+| 90
+| 85
+
+| Bob
+| 78
+| 88
+```
+
+``````md
+```table cols=3 rows=4 header-cols=1 header-rows=2
+r2^| Name
+c2^| Score
+
+| Math
+| English
+
+| Alice
+| 90
+| 85
+
+| Bob
+| 78
+| 88
+```
+``````
 
 ## Math
 
@@ -97,8 +134,10 @@ $$
 $$
 ```
 
-Inline math: $ax^2 + bx + c = 0$ is surrounded by \$ and \$
+Inline math:  
+$ax^2 + bx + c = 0$ is surrounded by \$ and \$
 
 ```md
-Inline math: $ax^2 + bx + c = 0$ is surrounded by \$ and \$
+Inline math:  
+$ax^2 + bx + c = 0$ is surrounded by \$ and \$
 ```

@@ -3,10 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Syntax</title>
-  <link rel="stylesheet" href="./css/style.css">
-  <link rel="stylesheet" href="./css/highlight.css">
-  <link rel="stylesheet" href="./css/math.css">
+  <meta name="root" content="index.html"/>
+  <title>Syntax.md</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/highlight.css">
+  <link rel="stylesheet" href="css/math.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
 </head>
 <body>
@@ -716,8 +717,8 @@ _   underscore
 []  square brackets
 ()  parentheses
 #   hash mark
-+	plus sign
--	minus sign (hyphen)
++   plus sign
+-   minus sign (hyphen)
 .   dot
 !   exclamation mark
 </code></pre>
@@ -727,9 +728,14 @@ _   underscore
     <button onclick="history.back()" style="margin: 4px; padding: 8px; background-color: #007BFF; color: white; border: none; border-radius: 4px; cursor: pointer;">
       Go Back
     </button>
-    <button onclick="window.location.href='./index.html'" style="margin: 4px; padding: 8px; background-color: #28A745; color: white; border: none; border-radius: 4px; cursor: pointer;">
+    <button onclick="gotoTop()" style="margin: 4px; padding: 8px; background-color: #28A745; color: white; border: none; border-radius: 4px; cursor: pointer;">
       Top Page
     </button>
   </div>
-  </html>
 </body>
+<script>
+  function gotoTop() {
+    window.location.href = document.querySelector('meta[name="root"]')?.getAttribute('content') ?? window.location.href;
+  } 
+</script>
+</html>

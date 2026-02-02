@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="root" content="index.html"/>
+  <title>Usage.md</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/highlight.css">
+  <link rel="stylesheet" href="css/math.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+</head>
+<body>
+  <div id="wrap">
+    <h1 id="%E4%BD%BF%E3%81%84%E6%96%B9" tabindex="-1">使い方</h1>
+<pre><code class="language-sh">mdhtml &lt;input&gt; [options]
+</code></pre>
+<table>
+<tr>
+<td><code>&lt;input&gt;</code></td>
+<td>
+<p>入力ファイル/フォルダを指定</p>
+<p>入力がファイルの場合、そのファイルを変換します。<br>
+入力がフォルダの場合、そのフォルダ内の全ての文書を変換します。</p>
+</td>
+</tr>
+</table>
+<h2 id="%E8%A8%AD%E5%AE%9A%E4%B8%80%E8%A6%A7" tabindex="-1">設定一覧</h2>
+<table>
+<tr>
+<td><code>--output</code></td>
+<td><code>-o</code></td>
+<td>
+<p>出力ファイル/フォルダを指定</p>
+<p>入力がファイルの場合、出力ファイル名を指定してください。<br>
+入力がフォルダの場合、出力先のフォルダ名を指定してください。</p>
+</td>
+</tr>
+<tr>
+<td><code>--template</code></td>
+<td><code>-t</code></td>
+<td>テンプレートファイルを指定</td>
+</tr>
+<tr>
+<td><code>--clean</code></td>
+<td></td>
+<td>変換前に出力先のフォルダを全消去します</td>
+</tr>
+<tr>
+<td><code>--quiet</code></td>
+<td><code>-q</code></td>
+<td>変換メッセージをOFFにします</td>
+</tr>
+<tr>
+<td><code>--watch</code></td>
+<td><code>-w</code></td>
+<td>
+<p>ウォッチモードを有効にします</p>
+<p>ウォッチモードでは入力ファイルを監視し、ファイル変更を検知すると自動的にそのファイルを変換します。</p>
+</td>
+</tr>
+<tr>
+<td><code>--math [path]</code></td>
+<td></td>
+<td>
+<p>数式用のCSSファイルを出力します (パス省略時: math.css)</p>
+<p>本文に数式を使う場合、数式描画用のCSSファイルが必要です。</p>
+<p>本ツールはインライン数式に katex を、ブロック数式に mathjax を使います。これらを表示するフォントとスタイルシートは CDN からダウンロードする想定ですが、mathjax のスタイルシートはサイズが大きく、オンラインで配信されていません。本オプションを利用すると入力ファイルを表示できる必要最小限のスタイルシートを生成します。</p>
+</td>
+</tr>
+</table>
+<h2 id="%E9%AB%98%E5%BA%A6%E3%81%AA%E8%A8%AD%E5%AE%9A" tabindex="-1">高度な設定</h2>
+<table>
+<tr>
+<td><code>--math-font-url</code></td>
+<td>
+<p>MathJax のフォントURLを変更します。</p>
+<p>初期値:  <code>https://cdn.jsdelivr.net/npm/@mathjax/mathjax-newcm-font@latest/</code></p>
+</td>
+</tr>
+</table>
+
+  </div>
+  <div style="position: fixed; top: 8px; right: 8px;">
+    <button onclick="history.back()" style="margin: 4px; padding: 8px; background-color: #007BFF; color: white; border: none; border-radius: 4px; cursor: pointer;">
+      Go Back
+    </button>
+    <button onclick="gotoTop()" style="margin: 4px; padding: 8px; background-color: #28A745; color: white; border: none; border-radius: 4px; cursor: pointer;">
+      Top Page
+    </button>
+  </div>
+</body>
+<script>
+  function gotoTop() {
+    window.location.href = document.querySelector('meta[name="root"]')?.getAttribute('content') ?? window.location.href;
+  } 
+</script>
+</html>

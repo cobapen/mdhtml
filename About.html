@@ -3,50 +3,61 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>About</title>
-  <link rel="stylesheet" href="./css/style.css">
-  <link rel="stylesheet" href="./css/highlight.css">
-  <link rel="stylesheet" href="./css/math.css">
+  <meta name="root" content="index.html"/>
+  <title>About.md</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/highlight.css">
+  <link rel="stylesheet" href="css/math.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
 </head>
 <body>
   <div id="wrap">
     <h1 id="%E3%83%84%E3%83%BC%E3%83%AB%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6" tabindex="-1">ツールについて</h1>
-<p>Markdown文書 を HTML に変換するツールです。</p>
+<p>mdhtml は Markdown文書 を HTML に変換するツールです。</p>
 <p>ファイル・フォルダの変換に対応しています。フォルダを指定した場合はすべての .md 文書を HTML 形式に変換し、その他の拡張子のファイルは出力フォルダにコピーします。このため簡単なドキュメントジェネレータとして使えます。</p>
-<p>このツールは <code>@cobapen/markdown</code> のフロントエンドです。幾つかの独自記法が利用可能です。</p>
+<p>本ツールは <code>@cobapen/markdown</code> のフロントエンドツールとして開発されました。</p>
+<div class="table-of-contents"><ul><li><a href="#%E3%82%A4%E3%83%B3%E3%82%B9%E3%83%88%E3%83%BC%E3%83%AB">インストール</a></li><li><a href="#%E4%BD%BF%E3%81%84%E6%96%B9">使い方</a></li><li><a href="#%E3%83%86%E3%83%B3%E3%83%97%E3%83%AC%E3%83%BC%E3%83%88%E3%83%95%E3%82%A1%E3%82%A4%E3%83%AB">テンプレートファイル</a></li><li><a href="#%E6%8B%A1%E5%BC%B5%E6%96%87%E6%B3%95">拡張文法</a></li><li><a href="#%E3%82%B9%E3%82%BF%E3%82%A4%E3%83%AB%E3%82%B7%E3%83%BC%E3%83%88%E3%83%BB%E3%82%B9%E3%82%AF%E3%83%AA%E3%83%97%E3%83%88">スタイルシート・スクリプト</a></li></ul></div>
 <h2 id="%E3%82%A4%E3%83%B3%E3%82%B9%E3%83%88%E3%83%BC%E3%83%AB" tabindex="-1">インストール</h2>
 <p>Node.js 20.11以降をインストールし、以下のコマンドを実行してください</p>
-<pre><code>npm install -g @cobapen/mdhtml
+<pre><code class="language-sh">npm install -g @cobapen/mdhtml
 </code></pre>
 <h2 id="%E4%BD%BF%E3%81%84%E6%96%B9" tabindex="-1">使い方</h2>
-<pre><code class="language-bash">mdhtml input --template template.html --output dst
+<pre><code class="language-sh">mdhtml input --template template.html --output dst
 </code></pre>
 <ul>
-<li><code>--output &lt;path&gt;</code>: 出力ファイル/フォルダを指定する (初期値: output)</li>
-<li><code>--template &lt;file&gt;</code>: テンプレートを指定する (初期値: _template.html)</li>
+<li><code>--output &lt;path&gt;</code>: 出力ファイル/フォルダを指定する</li>
+<li><code>--template &lt;file&gt;</code>: テンプレートを指定する</li>
 <li><code>--clean</code>: 変換前に出力先のフォルダを全消去する</li>
 <li><code>--quiet</code>: サイレントモードで実行する</li>
 <li><code>--watch</code>: ファイルを監視して変換する</li>
-<li><code>--math &lt;path&gt;</code>: 数式用のcssファイルを出力する (初期値: math.css)</li>
+<li><code>--config</code>: 設定ファイルを開く</li>
+<li><code>--math [path]</code>: 数式用のcssファイルを出力する (初期値: math.css)</li>
 </ul>
+<p>➡ <a href="./Usage.html">オプション一覧</a></p>
 <h2 id="%E3%83%86%E3%83%B3%E3%83%97%E3%83%AC%E3%83%BC%E3%83%88%E3%83%95%E3%82%A1%E3%82%A4%E3%83%AB" tabindex="-1">テンプレートファイル</h2>
-<p>HTML変換には<strong>テンプレートファイル</strong>が必要です。テンプレートファイルはレイアウトを定義するもので、テンプレートエンジンには <a href="https://mustache.github.io/">Mustache</a>を使っています。</p>
-<p>テンプレートファイルはカレントディレクトリまたは入力フォルダを起点に検索します。テンプレートを指定しない場合の初期値は <code>_template.html</code> です。テンプレートが見つからない場合は組込みのテンプレートを使います。</p>
+<p>HTML変換には<strong>テンプレートファイル</strong>が必要です。テンプレートファイルは出力ファイルのレイアウトを定義するもので、テンプレートエンジンには <a href="https://mustache.github.io/">Mustache</a>を使っています。</p>
+<p>テンプレートファイルはカレントディレクトリ起点に検索します。組込みのテンプレートを指定することもできます。</p>
 <p>この文書を生成しているテンプレートファイル(<code>docs/_template.html</code>)を参考にしてください。</p>
+<p>➡ <a href="./Template.html">テンプレートファイル</a></p>
 <h2 id="%E6%8B%A1%E5%BC%B5%E6%96%87%E6%B3%95" tabindex="-1">拡張文法</h2>
-<p><a href="https://spec.commonmark.org/0.31.2/">標準の Markdown文法</a>をベースに、<code>@cobapen/markdown</code> で利用可能な拡張文法が利用できます。</p>
+<p>本ツールは Markdown文書の変換に <code>@cobapen/markdown</code> を使います。このエンジンでは<a href="https://spec.commonmark.org/0.31.2/">標準の Markdown文法</a>に加えて、幾つかの拡張文法が利用できます。</p>
+<p>➡ <a href="./SyntaxExt.html">拡張文法について</a></p>
 <h2 id="%E3%82%B9%E3%82%BF%E3%82%A4%E3%83%AB%E3%82%B7%E3%83%BC%E3%83%88%E3%83%BB%E3%82%B9%E3%82%AF%E3%83%AA%E3%83%97%E3%83%88" tabindex="-1">スタイルシート・スクリプト</h2>
-<p>必要に応じて利用し、変換後のHTMLファイルから参照してください。なお、テンプレートファイル内にインラインで記述すればファイル単体で完結します。</p>
+<p>必要に応じて利用し、変換後のHTMLファイルから参照してください。テンプレートファイルにインライン方式でスタイルシートを定義すると、HTMLファイル単体で完結します。</p>
 
   </div>
   <div style="position: fixed; top: 8px; right: 8px;">
     <button onclick="history.back()" style="margin: 4px; padding: 8px; background-color: #007BFF; color: white; border: none; border-radius: 4px; cursor: pointer;">
       Go Back
     </button>
-    <button onclick="window.location.href='./index.html'" style="margin: 4px; padding: 8px; background-color: #28A745; color: white; border: none; border-radius: 4px; cursor: pointer;">
+    <button onclick="gotoTop()" style="margin: 4px; padding: 8px; background-color: #28A745; color: white; border: none; border-radius: 4px; cursor: pointer;">
       Top Page
     </button>
   </div>
-  </html>
 </body>
+<script>
+  function gotoTop() {
+    window.location.href = document.querySelector('meta[name="root"]')?.getAttribute('content') ?? window.location.href;
+  } 
+</script>
+</html>

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="root" content="index.html"/>
+  <title>Template.md</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/highlight.css">
+  <link rel="stylesheet" href="css/math.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+</head>
+<body>
+  <div id="wrap">
+    <h1 id="%E3%83%86%E3%83%B3%E3%83%97%E3%83%AC%E3%83%BC%E3%83%88%E8%A7%A3%E8%AA%AC" tabindex="-1">テンプレート解説</h1>
+<div class="table-of-contents"><ul><li><a href="#%E7%B5%84%E3%81%BF%E8%BE%BC%E3%81%BF%E3%83%86%E3%83%B3%E3%83%97%E3%83%AC%E3%83%BC%E3%83%88">組み込みテンプレート</a></li><li><a href="#%E5%A4%89%E6%95%B0">変数</a></li><li><a href="#%E3%83%95%E3%82%A1%E3%82%A4%E3%83%AB%E5%8F%82%E7%85%A7">ファイル参照</a></li></ul></div>
+<h2 id="%E7%B5%84%E3%81%BF%E8%BE%BC%E3%81%BF%E3%83%86%E3%83%B3%E3%83%97%E3%83%AC%E3%83%BC%E3%83%88" tabindex="-1">組み込みテンプレート</h2>
+<p>以下のテンプレートが標準で利用可能です。</p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>default</td>
+<td>
+<p>標準テンプレート</p>
+<p>CSS埋込型で、ファイル単体にも使いやすいテンプレートです。<br>
+数式表示にはインターネット接続が必要です。</p>
+</td>
+</tr>
+<tr>
+<td>none</td>
+<td>テンプレートなし</td>
+</tr>
+</tbody>
+</table>
+<h2 id="%E5%A4%89%E6%95%B0" tabindex="-1">変数</h2>
+<p>テンプレートファイルでは以下の変数が使えます<sup class="footnote-ref"><a href="#fn1" id="fnref1">[1]</a></sup></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Syntax</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>{{{ contents }}}</code></td>
+<td>マークダウンファイルを変換したHTMLが入ります</td>
+</tr>
+<tr>
+<td><code>{{ title }}</code></td>
+<td>ファイル名</td>
+</tr>
+<tr>
+<td><code>{{ date }}</code></td>
+<td>変換日時</td>
+</tr>
+<tr>
+<td><code>{{{ mathcss }}}</code></td>
+<td>
+<p>数式用のスタイルシートを埋め込みます。</p>
+<p>この変数が有効なのは <code>--math</code> オプションが未指定で、かつ元の文書にブロック数式が使われている場合のみです。それ以外の条件では空文字になります。</p>
+<p>入力にディレクトリを指定した場合、内部では2パス描画が有効になります。<br>
+一度全てのファイルを空変換し、必要最小限で完全なスタイルシートを取得します。</p>
+<p><code>--watch</code>モードでは変更のあったファイルだけが再生成され、スタイルシートは不要になった文字のスタイルも含まれるため、最終描画結果にばらつきが生じます。</p>
+</td>
+</tr>
+</tbody>
+</table>
+<h2 id="%E3%83%95%E3%82%A1%E3%82%A4%E3%83%AB%E5%8F%82%E7%85%A7" tabindex="-1">ファイル参照</h2>
+<pre><code class="language-html"><span class="hljs-tag">&lt;<span class="hljs-name">a</span> <span class="hljs-attr">href</span>=<span class="hljs-string">&quot;@/css/style.css&quot;</span>&gt;</span>
+</code></pre>
+<p><code>@/</code> から始まるパスは、入力ファイルの位置によらず、出力ディレクトリを基準としたファイルを参照します。</p>
+<p>パスの検索には正規表現を使っており、場合によっては置換されない可能性があります。本ツールは次の属性の値をパスとみなします。</p>
+<pre><code>href
+src
+action
+formaction
+poster
+cite
+data
+manifest
+srcset
+imagesrcset
+ping
+content
+usemap
+</code></pre>
+<hr class="footnotes-sep">
+<section class="footnotes">
+<ol class="footnotes-list">
+<li id="fn1" class="footnote-item"><p><code>{{{ var }}}</code> または <code>{{ &amp;var }}</code> は非エスケープ構文です <a href="#fnref1" class="footnote-backref">↩︎</a></p>
+</li>
+</ol>
+</section>
+
+  </div>
+  <div style="position: fixed; top: 8px; right: 8px;">
+    <button onclick="history.back()" style="margin: 4px; padding: 8px; background-color: #007BFF; color: white; border: none; border-radius: 4px; cursor: pointer;">
+      Go Back
+    </button>
+    <button onclick="gotoTop()" style="margin: 4px; padding: 8px; background-color: #28A745; color: white; border: none; border-radius: 4px; cursor: pointer;">
+      Top Page
+    </button>
+  </div>
+</body>
+<script>
+  function gotoTop() {
+    window.location.href = document.querySelector('meta[name="root"]')?.getAttribute('content') ?? window.location.href;
+  } 
+</script>
+</html>

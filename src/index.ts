@@ -1,31 +1,44 @@
 #! /usr/bin/env node
-import { Command } from "commander";
-import { MdHtmlConverter } from "./mdhtml.js";
+import { Command, Option } from "commander";
+import { MdHtmlConverter, MdHtmlError } from "./mdhtml.js";
 
 const program = new Command();
 
 program
   .name("mdhtml")
-  .argument("<input>", "Input directory containing markdown files")
-  .option("-o, --output <dir>", "output filename or directory (default: output)")
-  .option("-t, --template <file>", "HTML template file (default: _template.html)")
+  .argument("<input>", "Input file or directory")
+  .option("-o, --output <path>", "output filename or directory")
+  .option("-t, --template <file>", "HTML template")
   .option("-w, --watch", "Run in watch mode")
   .option("-q, --quiet", "Run in quiet mode")
   .option("-c, --clean", "Delete output directory before conversion")
   .option("--math [file]", "Generate math stylesheet")
-  .action((input, options) => {
+  .addOption(new Option("--stdout", "Print to stdout (file mode only)").hideHelp())
+  .addOption(new Option("--math-font-url <path>", "set math font").hideHelp())
+  .action(async (input, options) => {
     const converter = new MdHtmlConverter({
-      template: options.template,
-      output: options.output,
       quiet: options.quiet,
       clean: options.clean,
+      stdout: options.stdout,
       math: withDefaults(options.math, "math.css"),
+      mathFontUrl: options["mathFontUrl"],
     });
+
+    const template = options.template;
+    const output = options.output;
     
-    if (options.watch === true) {
-      converter.watch(input);
-    } else {
-      converter.convert(input);
+    try {
+      if (options.watch === true) {
+        await converter.watch(input, output, template);
+      } else {
+        await converter.convert(input, output, template);
+      }
+    } catch (err: unknown) {
+      if (err instanceof MdHtmlError) {
+        console.error(`Error: ${err.message}`);
+      } else {
+        throw err;
+      }
     }
   });
 
@@ -46,3 +59,6 @@ function withDefaults<T>(option: string|boolean|undefined, defaultValue: T) {
   }
   return option;
 }
+
+
+

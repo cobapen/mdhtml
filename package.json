@@ -1,6 +1,6 @@
 {
   "name": "@cobapen/mdhtml",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Markdown to html document generator",
   "keywords": [
     "markdown",
@@ -28,7 +28,8 @@
   "scripts": {
     "build": "tsc",
     "build:dev": "tsc",
-    "build:doc": "npx mdhtml docs --math css/math.css --clean --output public",
+    "build:doc": "mdhtml docs --math css/math.css --clean --output public --template docs/_template.html",
+    "tgen": "node templates/_tgen/bundle.mjs",
     "test": "vitest",
     "coverage": "vitest run --coverage",
     "lint": "eslint src",
@@ -38,19 +39,19 @@
     "node": ">=20.11.0 <21 || >=21.2.0"
   },
   "dependencies": {
-    "@cobapen/markdown": "^0.4.2",
-    "chokidar": "^4.0.3",
-    "commander": "^14.0.0",
+    "@cobapen/markdown": "^0.6.0",
+    "chokidar": "^5.0.0",
+    "commander": "^14.0.2",
     "mustache": "^4.2.0"
   },
   "devDependencies": {
-    "@cobapen/eslint-config": "^0.4.0",
+    "@cobapen/eslint-config": "^0.5.0",
     "@types/mustache": "^4.2.6",
-    "@types/node": "^22.15.19",
-    "@vitest/coverage-v8": "^3.1.4",
-    "eslint": "^9.27.0",
-    "memfs": "^4.17.2",
-    "typescript": "^5.8.3",
-    "vitest": "^3.1.4"
+    "@types/node": "^25.0.10",
+    "@vitest/coverage-v8": "^4.0.18",
+    "eslint": "^9.39.2",
+    "memfs": "^4.56.10",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.18"
   }
 }

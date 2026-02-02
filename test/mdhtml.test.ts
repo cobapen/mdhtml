@@ -143,7 +143,9 @@ describe("MdHtmlRenderer", () => {
     });
 
     it("should output forward slashes on Windows", () => {
-      const file = FilePath.new(path.normalize("docs\\guide.md"), inDir);
+      const file = (process.platform === "win32")
+        ? FilePath.new("docs\\guide.md", inDir)
+        : FilePath.new("docs/guide.md", inDir);
       const html = "<a href=\"@/README.html\">Readme</a>";
       const result = renderer.replaceHtmlLinks(html, file);
       expect(result).not.toContain("\\");

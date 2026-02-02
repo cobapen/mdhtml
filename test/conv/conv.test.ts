@@ -284,9 +284,6 @@ describe.sequential("Conversion Tests", () => {
       output: fpath.output,
       template: undefined,
       verify: [
-        expectVolume(vol => {
-          console.log(vol.toJSON(fpath.output));
-        }),
         expectFileExists(resolve(fpath.output, fpath.test_html)),
         expectFileContents(resolve(fpath.output, fpath.test_html), contents => {
           expect(contents).toContain("<p>This is test</p>");

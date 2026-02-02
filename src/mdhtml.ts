@@ -6,17 +6,20 @@ import { text as readStreamAsText } from "node:stream/consumers";
 import { pipeline } from "node:stream/promises";
 import { CMarkdown } from "@cobapen/markdown";
 import chokidar from "chokidar";
-import mustache from "mustache";
 import { DirPath, FilePath, PathUtils } from "./pathutil.js";
 import { HtmlTemplate, TemplateProvider } from "./template.js";
 
 type PrintFn = (...args: any[]) => void;
 
-export type Options = {
-  quiet: boolean,     // Do not print successful log messages
-  clean: boolean,     // Remove dst folder before conversion
-  stdout: boolean     // Output to stdout
-  math?: string       // Output path to the stylesheet
+export interface RenderOptions {
+  quiet: boolean,         // Do not print successful log messages
+  math?: string,          // Math stylesheet path
+}
+
+export interface Options extends RenderOptions {
+  clean: boolean,       // Clear dst folder before conversion
+  stdout: boolean,        // Output to stdout
+  mathFontUrl?: string, // URL to the math font
 };
 
 const defaultOptions: Options = {
@@ -24,6 +27,7 @@ const defaultOptions: Options = {
   clean: false,
   stdout: false,
   math: undefined,
+  mathFontUrl: undefined,
 };
 
 export class MdHtmlConverter {
@@ -33,27 +37,38 @@ export class MdHtmlConverter {
   #md: CMarkdown;
   #mdr: MdHtmlRenderer;
   #print: PrintFn;
-  #mathcache: string;
+  #mathcache: string = "";
 
   constructor(args?: Partial<Options>) {
     this.#options = { ...defaultOptions, ...args };
     this.#tmplProvider = new TemplateProvider();
     this.#pathProvider = new PathProvider();
     this.#print = this.#options.quiet ? () => {} : console.log;
-    this.#md = new CMarkdown();
+    this.#md = new CMarkdown({
+      math: {
+        chtml: {
+          fontURL: this.#options.mathFontUrl,
+        }
+      }
+    });
     this.#mdr = new MdHtmlRenderer(this.#md, this.#pathProvider);
     this.#mathcache = "";
   }
 
+  /**
+   * Check input arguments validity and print messages to the user.
+   * 
+   * @param input       input option
+   * @param output      output option (if specified)
+   * @param template    template option (if specified)
+   */
   checkArguments(input: string, output?: string, template?: string) {
+    // Check input file exists. ---------------------------
     const inputPath = PathUtils.open(input);
 
     // Check input and output. ---------------------------
     if (inputPath.kind === "file") {
-      if (output === undefined) {
-        // OK
-      }
-      else if (output.trim().length === 0) {
+      if (output !== undefined && output.trim().length === 0) {
         throw new MdHtmlError("output file cannot be empty");
       }
     }
@@ -67,14 +82,28 @@ export class MdHtmlConverter {
     }
 
     // Check template. --------------------------------------
-    if (template === undefined) {
-      // OK
-    }
+    if (template === undefined) {}
     else if (template !== undefined && template.trim().length === 0) {
       throw new MdHtmlError("template name cannot be empty");
     }
     else if (!this.#tmplProvider.isPredefined(template) && !FilePath.new(template).exists()) {
       throw new MdHtmlError(`template not found: ${template}`);
+    }
+  }
+
+  #configurePathsForSingle() {
+    this.#pathProvider.configure(DirPath.cwd(), DirPath.cwd());
+  }
+
+  #configurePaths(input: DirPath, output: DirPath) {
+    this.#pathProvider.configure(input, output);
+  }
+
+  #configureForTemplate(template: HtmlTemplate): void {
+    if (this.#options.math === undefined && template.acceptsMathcss) {
+      this.#mdr.embedMathcssEnabled = true;
+    } else {
+      this.#mdr.embedMathcssEnabled = false;
     }
   }
   
@@ -90,20 +119,19 @@ export class MdHtmlConverter {
    */
   async convert(input: string, output?: string, template?: string): Promise<void> {
     this.checkArguments(input, output, template);
+    const inputPath = PathUtils.open(input);
     output = output ?? PathProvider.defaultOutput(input);
     template = template ?? TemplateProvider.defaultTemplateName;
-    
-    const inputPath = PathUtils.open(input);
-    const tmpl = await this.#tmplProvider.resolveTemplate(template);    
+
+    const tmpl = await this.#tmplProvider.resolveTemplate(template);
     
     if (inputPath.kind === "file") {
-      this.#pathProvider.configureForSingle();
-      await this.convertSingle(inputPath, output, tmpl);
+      const outputFile = FilePath.new(output);
+      await this.#convertSingle(inputPath, outputFile, tmpl);
     }
     else if (inputPath.kind === "dir") {
       const outputDir = DirPath.new(output);
-      this.#pathProvider.configure(inputPath, outputDir);
-      await this.convertDir(inputPath, outputDir, tmpl);
+      await this.#convertDir(inputPath, outputDir, tmpl);
     }
   }
 
@@ -119,18 +147,17 @@ export class MdHtmlConverter {
    */
   async watch(input: string, output?: string, template?: string): Promise<void> {
     this.checkArguments(input, output, template);
+    const inputPath = PathUtils.open(input);
     output = output ?? PathProvider.defaultOutput(input);
     template = template ?? TemplateProvider.defaultTemplateName;
-    
-    const inputPath = PathUtils.open(input);
+
     if (inputPath.kind === "file") {
-      this.#pathProvider.configureForSingle();
-      await this.watchSingle(inputPath, output, template);
+      const outputFile = FilePath.new(output);
+      await this.#watchSingle(inputPath, outputFile, template);
     }
     else if (inputPath.kind === "dir") {
       const outputDir = DirPath.new(output);
-      this.#pathProvider.configure(inputPath, outputDir);
-      await this.watchDir(inputPath, outputDir, template);
+      await this.#watchDir(inputPath, outputDir, template);
     }
   }
 
@@ -147,14 +174,16 @@ export class MdHtmlConverter {
    * @param template    HTML template to use 
    * @returns 
    */
-  async convertSingle(input: FilePath, output: string, template: HtmlTemplate): Promise<void> {
+  async #convertSingle(input: FilePath, output: FilePath, template: HtmlTemplate): Promise<void> {
     if (this.#options.stdout === true) {
-      return this.convertToStdout(input, template);
+      return this.#convertToStdout(input, template);
     }
 
-    const outputPath = FilePath.new(output);
-    await this.#mdr.writeFile(input, outputPath, template);
-    this.#print("wrote:", outputPath.location);
+    this.#configurePathsForSingle();
+    this.#configureForTemplate(template);
+
+    await this.#mdr.writeFile(input, output, template);
+    this.#printPath("wrote:", output);
 
     if (this.#options.math !== undefined) {
       await this.#writeMathcss();
@@ -166,12 +195,12 @@ export class MdHtmlConverter {
    * 
    * This method is same as `convertSingle`, but generates no files.
    * 
-   * Other options does not take effects. 
-
    * @param input       markdown file path
    * @param template    template to use
    */
-  async convertToStdout(input: FilePath, template: HtmlTemplate): Promise<void> {
+  async #convertToStdout(input: FilePath, template: HtmlTemplate): Promise<void> {
+    this.#configurePathsForSingle();
+    this.#configureForTemplate(template);
     await this.#mdr.writeStream(input, process.stdout, template);
   }
 
@@ -187,16 +216,38 @@ export class MdHtmlConverter {
    * @param outputDir   ouput directory path
    * @param template    template to use
    */
-  async convertDir(inputDir: DirPath, outputDir: DirPath, template: HtmlTemplate): Promise<void> {
+  async #convertDir(inputDir: DirPath, outputDir: DirPath, template: HtmlTemplate): Promise<void> {
+    this.#configurePaths(inputDir, outputDir);
+    this.#configureForTemplate(template);
+
     if (this.#options.clean) {
       await outputDir.clean();
     }
+
     const files = await inputDir.readdir();
+
+    // If embed-mathcss is ON, prerender all markdown files and obtain a 
+    // full math css before transformation.
+    if (this.#mdr.embedMathcssEnabled) {
+      const promises = files.map(async file => {
+        const filePath = FilePath.new(file.parentPath + "/" + file.name);
+        if (filePath.ext === ".md") {
+          await this.#prerender(filePath, template);
+        }
+      });
+      for (const p of promises) {
+        await p;
+      }
+    }
+
+    // Transform (copy + convert) all files.
     const promises = files.map(async file => {
       const filePath = FilePath.new(file.parentPath + "/" + file.name);
       await this.#transform(filePath, template);
     });
-    await Promise.all(promises);
+    for (const p of promises) {
+      await p;
+    }
 
     if (this.#options.math !== undefined) {
       await this.#writeMathcss();
@@ -212,9 +263,10 @@ export class MdHtmlConverter {
    * @param output    output html file path
    * @param template 
    */
-  async watchSingle(input: FilePath, output: string, template: string): Promise<void> {
+  async #watchSingle(input: FilePath, output: FilePath, template: string): Promise<void> {
     const tmpl = await this.#tmplProvider.resolveTemplate(template);
-    await this.convertSingle(input, output, tmpl);
+    
+    await this.#convertSingle(input, output, tmpl);
 
     const watchlist = [input.absPath];
     const watcher = chokidar.watch(watchlist, {
@@ -225,7 +277,7 @@ export class MdHtmlConverter {
     watcher.on("change", async (changedFile) => {
       const file = PathUtils.open(changedFile);
       if (PathUtils.isFilePath(file)) {
-        await this.convertSingle(file, output, tmpl);
+        await this.#convertSingle(file, output, tmpl);
       }
     });
   }
@@ -240,9 +292,9 @@ export class MdHtmlConverter {
    * @param outputDir   output html directory
    * @param template    template to use
    */
-  async watchDir(inputDir: DirPath, outputDir: DirPath, template: string): Promise<void> {
+  async #watchDir(inputDir: DirPath, outputDir: DirPath, template: string): Promise<void> {
     const tmpl = await this.#tmplProvider.resolveTemplate(template);
-    await this.convertDir(inputDir, outputDir, tmpl);
+    await this.#convertDir(inputDir, outputDir, tmpl);
     const renderOnChange = async (filepath: string) => {
       const inputFile = FilePath.new(filepath);
       await this.#transform(inputFile, tmpl);
@@ -270,14 +322,21 @@ export class MdHtmlConverter {
     this.#print(`Watch started: ${inputDir}`);
   }
 
+  async #prerender(file: FilePath, template: HtmlTemplate): Promise<string> {
+    const content = await readFile(file.absPath, "utf-8");
+    return this.#mdr.renderMarkdown(content, template, file);
+  }
+
   async #transform(file: FilePath, template: HtmlTemplate): Promise<void> {
-    const relPath = file.getPath(this.#pathProvider.inputDir);
+    const inDir = this.#pathProvider.inputDir;
     const outDir = this.#pathProvider.outputDir;
+    const relPath = file.getPath(inDir);
 
     if (file.ext === ".md") {
       const outputPath = FilePath.new(relPath.replace(/\.md$/i, ".html"), outDir);
       await this.#mdr.writeFile(file, outputPath, template);
       this.#printPath("wrote:", outputPath);
+
     }
     else if (file.isFile()) {
       const outputPath = FilePath.new(relPath, outDir);
@@ -289,33 +348,38 @@ export class MdHtmlConverter {
   
   async #writeMathcss(): Promise<void> {
     if (this.#options.math) {
-      const mathcss = this.#md.mathcss()
-        .replace(/\n*$/, ""); // bug? remove empty lines at end of file
+      const mathcss = this.#mdr.getMathcss();
       if (this.#mathcache !== mathcss) {
         const dstPath = this.#pathProvider.relativeFromOutput(this.#options.math);
-        await dstPath.parent.mkdir();
-        await writeFile(dstPath.absPath, mathcss);
+        this.#mdr.writeMathcss(dstPath);
         this.#printPath("wrote:", dstPath);
         this.#mathcache = mathcss;
       }
     }
   }
 
-  #printPath(msg: string, file: FilePath, refDir: DirPath = this.#pathProvider.outputDir) {
+  #printPath(msg: string, file: FilePath, refDir: DirPath = this.#pathProvider.outputDir): void {
     const relPath = file.getPath(refDir);
     const path = relPath.startsWith("..") ? file.absPath : relPath;
     this.#print(msg, path);
   }
 }
 
+
 export class MdHtmlRenderer {
   readonly #md: CMarkdown;
   readonly #pathProvider: PathProvider;
+
+  #embedMathcss: boolean;
   
   constructor(md: CMarkdown, pathProvider: PathProvider) {
     this.#md = md;
     this.#pathProvider = pathProvider;
+    this.#embedMathcss = false;
   }
+
+  get embedMathcssEnabled(): boolean { return this.#embedMathcss; }
+  set embedMathcssEnabled(value: boolean) { this.#embedMathcss = value; }
 
   /** Open file and write converted HTML to dst. */
   async writeFile(file: FilePath, dst: FilePath|undefined, template: HtmlTemplate): Promise<void> {
@@ -337,41 +401,86 @@ export class MdHtmlRenderer {
   }
 
   /** Convert markdown and write HTML to stream*/
-  async write(md: string|Readable, fileLocation: string|FilePath, w: Writable, template: HtmlTemplate, ): Promise<void> {
+  async write(md: string|Readable, filepath: string|FilePath, w: Writable, template: HtmlTemplate, ): Promise<void> {
     if (md instanceof Readable) { 
       md = await readStreamAsText(md);
     }
-    if (typeof fileLocation === "string") { 
-      fileLocation = FilePath.new(fileLocation);
+    if (typeof filepath === "string") { 
+      filepath = FilePath.new(filepath);
     }
-    const html = this.renderMarkdown(md, fileLocation, template);
+
+    const html = this.renderMarkdown(md, template, filepath);
     await pipeline(Readable.from(html), w);
   }
 
-  renderMarkdown(content: string, fileLocation: FilePath, template: HtmlTemplate) : string {
+  renderMarkdown(content: string, template: HtmlTemplate, file: FilePath) : string {
     let html = this.#md.render(content, {
-      file: fileLocation.location,
+      file: file.location,
     });
-    html = mustache.render(template.content, {
-      title: fileLocation.filename,
-      content: html
+
+    // If output contains math and embed math mode is enabled, use embed the
+    // css input the output.
+    const mathcss = (html.includes("<mjx-") && this.#embedMathcss)
+      ? this.getMathcss() : "";
+
+    html = template.render(html, {
+      title: file.filename,
+      date: new Date(Date.now()),
+      mathcss: mathcss,
     });
-    html = this.replaceHtmlLinks(html, fileLocation);
+    html = this.replaceHtmlLinks(html, file);
     return html;
   }
-
+  
   replaceHtmlLinks(html: string, file: FilePath): string {
-    const regex = /(href|src)\s*=\s*["']([^"']+)["']/g;
-    return html.replace(regex, (match, attr: string, link: string) => {
-      if (link.startsWith("@/")) {
-        const target = this.#pathProvider.relativeFromInput(link);
-        const newLink = target.getPath(file.parent).replace(/\\/g, "/");
-        return `${attr}="${newLink}"`;
+    const attrs = [
+      "href", "src", "action", "formaction", "poster", "cite", "data",
+      "manifest", "srcset", "imgsrcset", "ping", "content", "usemap"
+    ].join("|");
+    
+    const regex = new RegExp(`(${attrs})\\s*=\\s*["']([^"']+)["']`, "g");
+    const absMarker = "@/";
+
+    const replaceLink = (link: string) =>{
+      if (link.startsWith(absMarker)) {
+        const target = this.#pathProvider.relativeFromInput(link.substring(2));
+        return target.getPath(file.parent).replace(/\\/g, "/");
+      } else {
+        return link;
+      }
+    };
+
+    return html.replace(regex, (match, attr: string, value: string) => {
+      if (attr === "srcset" || attr === "imgsrcset") {
+        const replaced = value.split(",")
+          .map(part => part
+            .split(" ")
+            .map(text => text.startsWith(absMarker) ? replaceLink(text) : text)
+            .join(" "))
+          .join(",");
+        
+        return `${attr}="${replaced}"`;
+      }
+      else if (value.startsWith(absMarker)) {
+        return `${attr}="${replaceLink(value)}"`;
       }
       return match;
     });
   }  
+
+  
+  async writeMathcss(dstPath: FilePath): Promise<void> {
+    const mathcss = this.getMathcss();
+    await dstPath.parent.mkdir();
+    await writeFile(dstPath.absPath, mathcss);
+  }
+
+  getMathcss() : string {
+    return this.#md.mathcss().replace(/\n*$/, ""); // bug? remove empty lines at end of file
+  }
 }
+
+
 
 export class PathProvider {
 

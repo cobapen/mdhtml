@@ -1,5 +1,5 @@
 #! /usr/bin/env node
-import { Command } from "commander";
+import { Command, Option } from "commander";
 import { MdHtmlConverter, MdHtmlError } from "./mdhtml.js";
 
 const program = new Command();
@@ -13,13 +13,15 @@ program
   .option("-q, --quiet", "Run in quiet mode")
   .option("-c, --clean", "Delete output directory before conversion")
   .option("--math [file]", "Generate math stylesheet")
-  .option("--stdout", "Print to stdout (file mode only)")
+  .addOption(new Option("--stdout", "Print to stdout (file mode only)").hideHelp())
+  .addOption(new Option("--math-font-url <path>", "set math font").hideHelp())
   .action(async (input, options) => {
     const converter = new MdHtmlConverter({
       quiet: options.quiet,
       clean: options.clean,
       stdout: options.stdout,
       math: withDefaults(options.math, "math.css"),
+      mathFontUrl: options["mathFontUrl"],
     });
 
     const template = options.template;

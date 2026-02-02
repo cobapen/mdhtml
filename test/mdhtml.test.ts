@@ -1,4 +1,5 @@
 import path from "node:path";
+import { CMarkdown } from "@cobapen/markdown";
 import { describe, expect, it } from "vitest";
 import { MdHtmlRenderer, PathProvider } from "../src/mdhtml.js";
 import { DirPath, FilePath } from "../src/pathutil.js";
@@ -148,5 +149,13 @@ describe("MdHtmlRenderer", () => {
       expect(result).not.toContain("\\");
       expect(result).toContain("../README.html");
     });
+  });
+});
+
+
+describe("CMarkdown", () => {
+  it("initial mathcss has contents", () => {
+    const md = new CMarkdown();
+    expect(md.mathcss().trim().replaceAll("\n", "").length).toBeGreaterThan(0);
   });
 });

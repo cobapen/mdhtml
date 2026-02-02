@@ -1,13 +1,33 @@
 import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
+import mustache from "mustache";
 import { defaultTemplate } from "./templates/default.js";
 import { plainTemplate } from "./templates/plain.js";
 
+
+export type TemplateVars = {
+  title: string,
+  date: Date,
+  mathcss: string,
+};
 export class HtmlTemplate {
   readonly content: string;
 
   constructor(content: string) {
     this.content = content;
+  }
+
+  get acceptsMathcss(): boolean { 
+    return this.content.match(/\{\{\{\s*mathcss\s*\}\}\}/) !== null;
+  }
+
+  render(content: string, vars: TemplateVars): string {
+    return mustache.render(this.content, {
+      content,
+      title: vars.title,
+      date: vars.date.toISOString(),
+      mathcss: vars.mathcss,
+    });
   }
 }
 
@@ -28,7 +48,7 @@ export class TemplateProvider {
   readonly cache: Record<string, HtmlTemplate>;
 
   constructor() {
-    this.cache = {};
+    this.cache = { ...predefinedTemplates };
   }
 
   static get embed(): Record<EmbedTemplateName, HtmlTemplate> { return predefinedTemplates; }
@@ -37,9 +57,17 @@ export class TemplateProvider {
   isPredefined(name: string): name is EmbedTemplateName {
     return predefinedTemplateNames.includes(name as EmbedTemplateName);
   }
+  fromCache(name: string): HtmlTemplate | undefined {
+    return this.cache[name];
+  }
+  fromCacheOrDefault(name: string): HtmlTemplate {
+    return this.cache[name] ?? TemplateProvider.embed.default;
+  }
+  setCache(name: string, tmpl: HtmlTemplate): void {
+    this.cache[name] = tmpl;
+  }
 
   async resolveTemplate(template: string, args?: Partial<ResolveTemplateArgs>): Promise<HtmlTemplate> {
-    const _srcDir = args?.srcDir ?? process.cwd();
     const useCache = args?.useCache ?? true;
 
     if (template === undefined || template.trim().length === 0) {

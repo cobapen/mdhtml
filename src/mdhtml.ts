@@ -1,4 +1,4 @@
-import fs, { existsSync } from "node:fs";
+import fs from "node:fs";
 import { copyFile, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { Readable, Writable } from "node:stream";
@@ -293,16 +293,26 @@ export class MdHtmlConverter {
    * @param template    template to use
    */
   async #watchDir(inputDir: DirPath, outputDir: DirPath, template: string): Promise<void> {
+    const templateFilePath = FilePath.new(template);
     const tmpl = await this.#tmplProvider.resolveTemplate(template);
     await this.#convertDir(inputDir, outputDir, tmpl);
+
     const renderOnChange = async (filepath: string) => {
-      const inputFile = FilePath.new(filepath);
-      await this.#transform(inputFile, tmpl);
+      const changedFile = FilePath.new(filepath);
+      await this.#transform(changedFile, tmpl);
       await this.#writeMathcss();
     };
+
+    const onTemplateChange = async () => {
+      const newTmpl = await this.#tmplProvider.resolveTemplate(template, { useCache: false });
+      this.#mathcache = "";
+      this.#configureForTemplate(newTmpl);
+      await this.#convertDir(inputDir, outputDir, newTmpl);
+    };
+    
     const watchlist = [inputDir.absPath];
-    if (existsSync(template)) {
-      watchlist.push(template);
+    if (templateFilePath.exists()) {
+      watchlist.push(templateFilePath.absPath);
     }
     const watcher = chokidar.watch(watchlist, {
       persistent: true,
@@ -313,7 +323,11 @@ export class MdHtmlConverter {
         await renderOnChange(filePath);
       })
       .on("change", async filePath => {
-        await renderOnChange(filePath);
+        if (filePath === templateFilePath.absPath) {
+          await onTemplateChange();
+        } else {
+          await renderOnChange(filePath);
+        }
       })
       .on("unlink", (_filepath) => {
         // do nothing?

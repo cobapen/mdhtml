@@ -29,10 +29,10 @@ node.js &gt; 20.11, 21.2 or later required
 mdhtml <input> --template _template.html --output <output>
 ```
 
-- `--output <path>`: Specify output file/folder (Default: outupt)
-- `--template <file>`: Specify output folder (Default: _template.html)
+- `--output <path>`: Specify output file/folder
+- `--template <file>`: Specify template file or name
 - `--clean`: Clean output folder before conversion
 - `--quiet`: Enable quiet mode and suppress conversion messages
 - `--watch`: Enable watch mode and monitor filesystem changes
-- `--math <path>`: Generate mathjax css file (Default: math.css)  
-    - `+:full` to disable adaptiveCSS
+- `--math <path>`: Generate mathjax css file
+- `--math-font-url <path>`: Change mathjax fontURL

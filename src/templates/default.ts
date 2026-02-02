@@ -12,16 +12,19 @@ export const defaultTemplate =
   --font-size: 0.9rem;
   --line-height: 1.625;
   --color-background: #f8f8f8;
+  --color-line: #ccc;
   --color-link: #1560d2;
   --color-primary: #005796;
-  --color-white: #f8f8f8;
+  --color-white: #fcfcfc;
   --color-black: #333;
   --color-text: #333;
-  --color-code-background: #e8e8e8;
+  --color-code-background: #e0e0e0;
   --color-codeblock-text: #abb2bf;
   --color-codeblock-background: #282c34;
   --max-width-page: 960px;
   --max-width-paragraph: 720px;
+  --radius-sm: 0.125rem;
+  --radius-md: 0.25rem;
 }
 
 * {
@@ -31,6 +34,7 @@ export const defaultTemplate =
 html {
   box-sizing: border-box;
   background-color: var(--color-background);
+  scrollbar-gutter: stable;
 }
 
 body {
@@ -52,16 +56,19 @@ p, pre {
 
 pre {
   position: relative;
-  color: var(--color-codeblock-text);
-  background: var(--color-codeblock-background);
+  border: 1px solid var(--color-line);
+  background-color: var(--color-code-background);
 }
 
 code {
   font-family: consolas, Menlo, "Liberation Mono", Courier, meiryo, arial, monospace;
+}
+
+:not(pre) > code {
   display: inline-block;
   white-space: nowrap;
   padding: 0 0.25rem;
-  border-radius: 2px;
+  border-radius: var(--radius-sm);
   background-color: var(--color-code-background);
 }
 
@@ -71,13 +78,13 @@ pre > code {
   line-height: 1.2;
   overflow-x: auto;
   white-space: pre;
-  background-color: var(--color-codeblock-background);
   overflow-x: auto;
 }
 
 pre > code[class^="language-"] {
-  font-family: consolas;
-  font-size: calc(16px * 0.85);
+  color: var(--color-codeblock-text);
+  background-color: var(--color-codeblock-background);
+  font-size: 0.85rem;
 }
 
 pre > span.title {
@@ -93,8 +100,75 @@ pre > span.title {
 }
 
 table {
-  background-color: green;
+  max-width: var(--max-width-paragraph);
+  overflow-x: auto;
+  border: 1px solid var(--color-code-background);
+  border-radius: var(--radius-md);
+  border-collapse: separate;
+  border-spacing: 0;
+  background-color: var(--color-background);
 }
+
+caption {
+  padding: 0.5rem 0.75rem;
+  font-weight: 600;
+  text-align: left;
+}
+
+thead th {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  text-align: left;
+}
+
+th, td {
+  padding: 0.5rem 0.75rem;
+  vertical-align: top;
+  border-top: 1px solid var(--color-line);
+  border-left: 1px solid var(--color-line);
+}
+
+th *:first-child,
+td *:first-child {
+  margin-top: 0;
+}
+
+th *:last-child,
+td *:last-child {
+  margin-bottom: 0;
+}
+
+th:last-child,
+td:last-child {
+  border-right: 1px solid var(--color-line);
+}
+
+tbody tr:last-child th,
+tbody tr:last-child td {
+  border-bottom: 1px solid var(--color-line);
+}
+
+tr:nth-child(even) td {
+  background: #fff;
+}
+
+thead tr:first-child th:first-child {
+  border-top-left-radius: var(--radius-md);
+}
+
+thead tr:first-child th:last-child {
+  border-top-right-radius: var(--radius-md);
+}
+
+tbody tr:last-child td:first-child {
+  border-bottom-left-radius: var(--radius-md);
+}
+
+tbody tr:last-child td:last-child {
+  border-bottom-right-radius: var(--radius-md);
+}
+
+
 .hljs {
   background: #1E1E1E;
   color: #DCDCDC;
@@ -202,6 +276,7 @@ table {
   display: inline-block;
   width: 100%;
 }
+    {{{mathcss}}}
   </style>
 </head>
 <body>

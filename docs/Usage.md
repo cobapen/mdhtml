@@ -5,7 +5,7 @@
 mdhtml <input> [options]
 ```
 
-```table cols=2
+```table width=100% cols="25,75"
 | `<input>`
 | 入力ファイル/フォルダを指定
 
@@ -16,7 +16,7 @@ mdhtml <input> [options]
 
 ## 設定一覧
 
-```table cols=3
+```table cols="25,5,70"
 
 |`--output`
 | `-o`
@@ -55,7 +55,7 @@ mdhtml <input> [options]
 
 ## 高度な設定
 
-```table cols=2
+```table cols="25,65"
 | `--math-font-url`
 | MathJax のフォントURLを変更します。
 

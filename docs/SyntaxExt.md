@@ -74,9 +74,27 @@ fn main() {
 ```
 ``````
 
-## Table
+## Table (GFM)
 
-```table cols=3 rows=4 header-cols=1 header-rows=2
+| Item   | Status | Note        |
+|--------|--------|-------------|
+| Task A | Done   | Completed   |
+| Task B | Doing  | In progress |
+| Task C | Todo   | Not started |
+
+```md
+| Item   | Status | Note        |
+|--------|--------|-------------|
+| Task A | Done   | Completed   |
+| Task B | Doing  | In progress |
+| Task C | Todo   | Not started |
+```
+
+## Table (FlatTable)
+
+[Syntax](https://www.npmjs.com/package/markdown-it-adv-table)
+
+```table width=50% cols="15,15,30" header-cols=1 header-rows=2
 r2^| Name
 c2^| Score
 
@@ -93,7 +111,7 @@ c2^| Score
 ```
 
 ``````md
-```table cols=3 rows=4 header-cols=1 header-rows=2
+```table width=50% cols="15,15,30" header-cols=1 header-rows=2
 r2^| Name
 c2^| Score
 

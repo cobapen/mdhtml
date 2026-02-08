@@ -1,5 +1,11 @@
 # Release Log
 
+## 0.3.1 (2026-02-09)
+
+- Updated `@cobapen/markdown` to latest (0.6.3)
+- New: better flat-table syntax for width control
+- Chg: small update on default styles
+
 ## 0.3.0 (2026-02-03)
 
 - Updated `@cobapen/markdown` to latest (0.6.0)

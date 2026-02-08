@@ -1,6 +1,6 @@
 {
   "name": "@cobapen/mdhtml",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Markdown to html document generator",
   "keywords": [
     "markdown",

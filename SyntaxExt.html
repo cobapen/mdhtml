@@ -14,7 +14,7 @@
   <div id="wrap">
     <h1 id="markdown%3A-syntax-extensions" tabindex="-1">Markdown: Syntax Extensions</h1>
 <h2 id="toc" tabindex="-1">TOC</h2>
-<div class="table-of-contents"><ul><li><a href="#toc">TOC</a></li><li><a href="#deflist">DefList</a></li><li><a href="#footnote">Footnote</a></li><li><a href="#link-rewrite">Link-Rewrite</a></li><li><a href="#code">Code</a></li><li><a href="#table">Table</a></li><li><a href="#math">Math</a></li></ul></div>
+<div class="table-of-contents"><ul><li><a href="#toc">TOC</a></li><li><a href="#deflist">DefList</a></li><li><a href="#footnote">Footnote</a></li><li><a href="#link-rewrite">Link-Rewrite</a></li><li><a href="#code">Code</a></li><li><a href="#table-(gfm)">Table (GFM)</a></li><li><a href="#table-(flattable)">Table (FlatTable)</a></li><li><a href="#math">Math</a></li></ul></div>
 <pre><code class="language-md">[[toc]]
 </code></pre>
 <h2 id="deflist" tabindex="-1">DefList</h2>
@@ -55,8 +55,47 @@ fn main() {
 }
 ```</span>
 </code></pre>
-<h2 id="table" tabindex="-1">Table</h2>
+<h2 id="table-(gfm)" tabindex="-1">Table (GFM)</h2>
 <table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Status</th>
+<th>Note</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Task A</td>
+<td>Done</td>
+<td>Completed</td>
+</tr>
+<tr>
+<td>Task B</td>
+<td>Doing</td>
+<td>In progress</td>
+</tr>
+<tr>
+<td>Task C</td>
+<td>Todo</td>
+<td>Not started</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-md">| Item   | Status | Note        |
+|--------|--------|-------------|
+| Task A | Done   | Completed   |
+| Task B | Doing  | In progress |
+| Task C | Todo   | Not started |
+</code></pre>
+<h2 id="table-(flattable)" tabindex="-1">Table (FlatTable)</h2>
+<p><a href="https://www.npmjs.com/package/markdown-it-adv-table">Syntax</a></p>
+<table style="width: 50%">
+<colgroup>
+<col style="width: calc(100% * 15 / 60)">
+<col style="width: calc(100% * 15 / 60)">
+<col style="width: calc(100% * 30 / 60)">
+</colgroup>
 <thead>
 <tr>
 <th rowspan="2" style="text-align: center">Name</th>
@@ -80,7 +119,7 @@ fn main() {
 </tr>
 </tbody>
 </table>
-<pre><code class="language-md"><span class="hljs-code">```table cols=3 rows=4 header-cols=1 header-rows=2
+<pre><code class="language-md"><span class="hljs-code">```table width=50% cols=&quot;15,15,30&quot; header-cols=1 header-rows=2
 r2^| Name
 c2^| Score
 

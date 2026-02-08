@@ -28,7 +28,8 @@
   "scripts": {
     "build": "tsc",
     "build:dev": "tsc",
-    "build:doc": "npx mdhtml docs --math css/math.css --clean --output public --template docs/_template.html",
+    "build:doc": "node lib/index.js docs --math css/math.css --clean --output public --template docs/_template.html",
+    "watch:doc": "node lib/index.js docs --math css/math.css --clean --output public --template docs/_template.html -w",
     "tgen": "node templates/_tgen/bundle.mjs",
     "test": "vitest",
     "coverage": "vitest run --coverage",

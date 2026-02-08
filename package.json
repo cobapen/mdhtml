@@ -39,15 +39,15 @@
     "node": ">=20.11.0 <21 || >=21.2.0"
   },
   "dependencies": {
-    "@cobapen/markdown": "^0.6.0",
+    "@cobapen/markdown": "^0.6.3",
     "chokidar": "^5.0.0",
-    "commander": "^14.0.2",
+    "commander": "^14.0.3",
     "mustache": "^4.2.0"
   },
   "devDependencies": {
-    "@cobapen/eslint-config": "^0.5.0",
+    "@cobapen/eslint-config": "^0.5.1",
     "@types/mustache": "^4.2.6",
-    "@types/node": "^25.0.10",
+    "@types/node": "^25.2.2",
     "@vitest/coverage-v8": "^4.0.18",
     "eslint": "^9.39.2",
     "memfs": "^4.56.10",

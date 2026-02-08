@@ -1,6 +1,4 @@
 
 # Templates 
 
-Template and assets sample
-
-[tgen (devonly)](./_tgen/README.md)
+Template and assets sample (TBD)

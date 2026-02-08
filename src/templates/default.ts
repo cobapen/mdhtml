@@ -18,7 +18,7 @@ export const defaultTemplate =
   --color-white: #fcfcfc;
   --color-black: #333;
   --color-text: #333;
-  --color-code-background: #e0e0e0;
+  --color-code-background: #eaeaec;
   --color-codeblock-text: #abb2bf;
   --color-codeblock-background: #282c34;
   --max-width-page: 960px;
@@ -109,6 +109,10 @@ table {
   background-color: var(--color-background);
 }
 
+table.centered {
+  text-align: center;
+}
+
 caption {
   padding: 0.5rem 0.75rem;
   font-weight: 600;
@@ -167,8 +171,6 @@ tbody tr:last-child td:first-child {
 tbody tr:last-child td:last-child {
   border-bottom-right-radius: var(--radius-md);
 }
-
-
 .hljs {
   background: #1E1E1E;
   color: #DCDCDC;

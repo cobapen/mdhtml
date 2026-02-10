@@ -6,18 +6,18 @@ const program = new Command();
 
 program
   .name("mdhtml")
-  .version(pkg.version)
   .argument("[input]", "Input file or directory")
-  .option("-o, --output <path>", "output filename or directory")
-  .option("-t, --template <file>", "HTML template")
-  .option("-w, --watch", "Run in watch mode")
-  .option("-c, --config <file>", "config file (JSON)")
-  .option("-i, --ignore <pattern>", "ignore files (glob/path)", multiple, [] as string[])
-  .option("-q, --quiet", "Run in quiet mode")
-  .option("--clean", "Delete output directory before conversion")
-  .option("--math [file]", "Generate math stylesheet")
-  .addOption(new Option("--stdout", "Print to stdout (file mode only)").hideHelp())
+  .addOption(new Option("-o, --output <path>", "output filename or directory"))
+  .addOption(new Option("-t, --template <file>", "HTML template"))
+  .addOption(new Option("-w, --watch", "Run in watch mode"))
+  .addOption(new Option("-c, --clean", "Delete output directory before conversion"))
+  .addOption(new Option("-i, --ignore <pattern>", "ignore files (glob/file)").argParser(multiple).default([] as string[]))
+  .addOption(new Option("-q, --quiet", "Run in quiet mode"))
+  .addOption(new Option("--config <file>", "use config file"))
+  .addOption(new Option("--math [file]", "Generate math stylesheet").hideHelp())
   .addOption(new Option("--math-font-url <path>", "set math font").hideHelp())
+  .addOption(new Option("--stdout", "Print to stdout (file mode only)").hideHelp())
+  .version(pkg.version)
   .action(async (input: string, options: Record<string, unknown>) => {
 
     const { intoConvOptions, loadConfigFile, mergeOptions } = await import("./config.js");

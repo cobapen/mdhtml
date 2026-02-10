@@ -31,11 +31,11 @@ mdhtml <input> --template _template.html --output <output>
 
 - `--output <path>`: Specify output file/folder
 - `--template <file>`: Specify template file or name
-- `--config <file>`: Load config JSON file
-- `--ignore <pattern>`: Ignored files (glob/path). 
-- `--clean`: Clean output folder before conversion
-- `--quiet`: Enable quiet mode and suppress conversion messages
 - `--watch`: Enable watch mode and monitor filesystem changes
+- `--clean`: Clean output folder before conversion
+- `--ignore <pattern>`: Ignored files (glob/path). 
+- `--quiet`: Enable quiet mode and suppress conversion messages
+- `--config <file>`: Load config JSON file
 - `--math <path>`: Generate mathjax css file
 - `--math-font-url <path>`: Change mathjax fontURL
 
@@ -43,6 +43,7 @@ mdhtml <input> --template _template.html --output <output>
 
 ```json
 {
+  "input": "docs",
   "output": "public",
   "template": "_template.html",
   "clean": true,

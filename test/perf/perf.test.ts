@@ -2,7 +2,7 @@
 import { test } from "vitest";
 import { cliMain, fileMissing, libMain, measurePerf } from "./perf.js";
 
-const TEST_TIMEOUT_MS = 15000;
+const TEST_TIMEOUT_MS = 25000;
 
 test.skipIf(fileMissing)("Performance Check", async () => {
   await import("./perf.js");

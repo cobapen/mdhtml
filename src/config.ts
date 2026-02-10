@@ -1,5 +1,6 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
+import { parse as parseYaml } from "yaml";
 import { MdHtmlError, Options as MdHtmlOptions } from "./mdhtml.js";
 
 const confkeys: Record<keyof JsonConfig, string> = {
@@ -50,10 +51,21 @@ export async function loadConfigFile(file: string): Promise<JsonConfig> {
   }
 
   let parsed: unknown;
+  const ext = path.extname(file).toLowerCase();
   try {
-    parsed = JSON.parse(text);
+    if (ext === ".yml" || ext === ".yaml") {
+      parsed = parseYaml(text);
+    } else if (ext === ".json" || ext.length === 0) {
+      parsed = JSON.parse(text);
+    } else {
+      try {
+        parsed = parseYaml(text);
+      } catch {
+        parsed = JSON.parse(text);
+      }
+    }
   } catch {
-    throw new MdHtmlError(`failed to parse config JSON: ${file}`);
+    throw new MdHtmlError(`failed to parse config file: ${file}`);
   }
   if (!parsed || typeof parsed !== "object") {
     throw new MdHtmlError(`invalid config format: ${file}`);

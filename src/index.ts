@@ -18,7 +18,7 @@ program
   .addOption(new Option("--math-font-url <path>", "set math font").hideHelp())
   .addOption(new Option("--stdout", "Print to stdout (file mode only)").hideHelp())
   .version(pkg.version)
-  .action(async (input: string, options: Record<string, unknown>) => {
+  .action(async (input: string | undefined, options: Record<string, unknown>) => {
 
     const { intoConvOptions, loadConfigFile, mergeOptions } = await import("./config.js");
     const { MdHtmlConverter, MdHtmlError } = await import("./mdhtml.js");
@@ -26,21 +26,26 @@ program
     const fileConfig = options.config
       ? await loadConfigFile(options.config as string)
       : {};
-
-    const merged = mergeOptions(fileConfig, options);
-    const convOptions = intoConvOptions(merged);
-    const converter = new MdHtmlConverter(convOptions);
-
-    const template = merged.template;
-    const output = merged.output;
     
     try {
-      if (merged.watch === true) {
-        await converter.watch(input, output, template);
-      } else {
-        await converter.convert(input, output, template);
+      const merged = mergeOptions(fileConfig, options);
+      const resolvedInput = merged.input ?? input ?? "";
+      if (resolvedInput.trim().length === 0) {
+        throw new MdHtmlError("<input> is not specified");
       }
-    } catch (err: unknown) {
+      const convOptions = intoConvOptions(merged);
+      const converter = new MdHtmlConverter(convOptions);
+
+      const template = merged.template;
+      const output = merged.output;
+    
+      if (merged.watch === true) {
+        await converter.watch(resolvedInput, output, template);
+      } else {
+        await converter.convert(resolvedInput, output, template);
+      }
+    } 
+    catch (err: unknown) {
       if (err instanceof MdHtmlError) {
         console.error(`Error: ${err.message}`);
       } else {

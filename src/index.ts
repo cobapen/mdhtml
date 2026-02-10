@@ -1,11 +1,13 @@
 #! /usr/bin/env node
 import { Command, Option } from "commander";
+import pkg from "../package.json" with { type: "json" };
 import { MdHtmlConverter, MdHtmlError } from "./mdhtml.js";
 
 const program = new Command();
 
 program
   .name("mdhtml")
+  .version(pkg.version)
   .argument("<input>", "Input file or directory")
   .option("-o, --output <path>", "output filename or directory")
   .option("-t, --template <file>", "HTML template")

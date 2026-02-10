@@ -11,7 +11,7 @@ export const defaultTemplate =
   --font-family: -apple-system, BlinkMacSystemFont, Helvetica Neue, Segoe UI, BIZ UDPGothic, Meiryo, Hiragino Kaku Gothic ProN, sans-serif;
   --font-size: 0.9rem;
   --line-height: 1.625;
-  --color-background: #f8f8f8;
+  --color-background: #fcfcfc;
   --color-line: #ccc;
   --color-link: #1560d2;
   --color-primary: #005796;

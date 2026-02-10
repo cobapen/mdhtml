@@ -13,7 +13,7 @@ program
   .option("-t, --template <file>", "HTML template")
   .option("-w, --watch", "Run in watch mode")
   .option("-q, --quiet", "Run in quiet mode")
-  .option("-c, --clean", "Delete output directory before conversion")
+  .option("--clean", "Delete output directory before conversion")
   .option("--math [file]", "Generate math stylesheet")
   .addOption(new Option("--stdout", "Print to stdout (file mode only)").hideHelp())
   .addOption(new Option("--math-font-url <path>", "set math font").hideHelp())

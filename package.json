@@ -30,7 +30,7 @@
     "build:dev": "tsc -p tsconfig.dev.json",
     "build:doc": "node lib/index.js docs --math css/math.css --clean --output public --template docs/_template.html",
     "watch:doc": "node lib/index.js docs --math css/math.css --clean --output public --template docs/_template.html -w",
-    "tgen": "node scripts/tgen/bundle.mjs",
+    "tgen": "node scripts/tgen/build-all.mjs",
     "test": "vitest",
     "coverage": "vitest run --coverage",
     "lint": "eslint src",

@@ -10,7 +10,7 @@ import { minimatch } from "minimatch";
 import { DirPath, FilePath, PathUtils, ResolvedPath } from "./pathutil.js";
 import { HtmlTemplate, TemplateProvider } from "./template.js";
 
-type PrintFn = (...args: any[]) => void;
+type PrintFn = (...args: unknown[]) => void;
 
 export interface RenderOptions {
   quiet: boolean,         // Do not print successful log messages

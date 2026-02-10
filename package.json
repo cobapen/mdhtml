@@ -11,7 +11,7 @@
   "type": "module",
   "main": "lib/index.js",
   "bin": {
-    "mdhtml": "lib/index.js"
+    "mdhtml": "dist/index.js"
   },
   "homepage": "https://github.com/cobapen/mdhtml#readme",
   "bugs": {
@@ -22,8 +22,10 @@
     "url": "git+https://github.com/cobapen/mdhtml.git"
   },
   "files": [
+    "dist/*.js",
     "lib/**/*.js",
-    "lib/**/*.d.ts"
+    "lib/**/*.d.ts",
+    "RELEASE.md"
   ],
   "scripts": {
     "build": "tsc",

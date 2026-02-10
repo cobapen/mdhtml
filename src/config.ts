@@ -2,7 +2,8 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { MdHtmlError, Options as MdHtmlOptions } from "./mdhtml.js";
 
-const argnames: Record<keyof CliConfig, string> = {
+const confkeys: Record<keyof JsonConfig, string> = {
+  input: "input",
   output: "output",
   template: "template",
   watch: "watch",
@@ -13,7 +14,6 @@ const argnames: Record<keyof CliConfig, string> = {
   mathFontUrl: "math-font-url",
   ignore: "ignore",
 };
-
 
 export interface CliConfig {
   output?: string,
@@ -27,7 +27,11 @@ export interface CliConfig {
   ignore?: string[],
 };
 
-export async function loadConfigFile(file: string): Promise<CliConfig> {
+export interface JsonConfig extends CliConfig {
+  input?: string,
+}
+
+export async function loadConfigFile(file: string): Promise<JsonConfig> {
   const configPath = path.resolve(process.cwd(), file);
   let text: string;
   try {
@@ -58,9 +62,9 @@ export async function loadConfigFile(file: string): Promise<CliConfig> {
   const obj = parsed as Record<string, unknown>;
   
   // Warn unknown keys
-  const awareKeys = new Set(Object.values(argnames));
+  const knownKeys = new Set(Object.values(confkeys));
   for (const key of Object.keys(obj)) {
-    if (!awareKeys.has(key)) {
+    if (!knownKeys.has(key)) {
       console.warn(`Unknown key "${key}" in config file`);
     }
   }
@@ -72,22 +76,23 @@ export async function loadConfigFile(file: string): Promise<CliConfig> {
   };
 
   return {
-    output: getValue<string>(obj, argnames.output, ["string"]),
-    template: getValue<string>(obj, argnames.template, ["string"]),
-    watch: getValue<boolean>(obj, argnames.watch, ["boolean"]),
-    quiet: getValue<boolean>(obj, argnames.quiet, ["boolean"]),
-    clean: getValue<boolean>(obj, argnames.clean, ["boolean"]),
-    stdout: getValue<boolean>(obj, argnames.stdout, ["boolean"]),
-    math: getValue<string|boolean>(obj, argnames.math, ["string", "boolean"]),
-    mathFontUrl: getValue<string>(obj, argnames.mathFontUrl, ["string"]),
+    input: getValue<string>(obj, confkeys.input, ["string"]),
+    output: getValue<string>(obj, confkeys.output, ["string"]),
+    template: getValue<string>(obj, confkeys.template, ["string"]),
+    watch: getValue<boolean>(obj, confkeys.watch, ["boolean"]),
+    quiet: getValue<boolean>(obj, confkeys.quiet, ["boolean"]),
+    clean: getValue<boolean>(obj, confkeys.clean, ["boolean"]),
+    stdout: getValue<boolean>(obj, confkeys.stdout, ["boolean"]),
+    math: getValue<string|boolean>(obj, confkeys.math, ["string", "boolean"]),
+    mathFontUrl: getValue<string>(obj, confkeys.mathFontUrl, ["string"]),
     ignore: ignore.length > 0 ? ignore : undefined,
   };
 }
 
-export function mergeOptions(config: CliConfig, options: any): CliConfig {
-  const merged: CliConfig = { ...config };
+export function mergeOptions(config: JsonConfig, options: Record<string, unknown>): JsonConfig {
+  const merged: JsonConfig = { ...config, ...options };
 
-  // Merge ignore additively.
+  // Merge array additively.
   const cfgIgnore = config.ignore ?? [];
   const cliIgnore = (options.ignore ?? []) as string[];
   merged.ignore = [...cfgIgnore, ...cliIgnore];
@@ -95,7 +100,7 @@ export function mergeOptions(config: CliConfig, options: any): CliConfig {
   return merged;
 }
 
-export function intoConvOptions(config: CliConfig) : Partial<MdHtmlOptions> {
+export function intoConvOptions(config: JsonConfig) : Partial<MdHtmlOptions> {
   return {
     quiet: config.quiet,
     clean: config.clean,

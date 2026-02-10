@@ -7,7 +7,7 @@ const program = new Command();
 program
   .name("mdhtml")
   .version(pkg.version)
-  .argument("<input>", "Input file or directory")
+  .argument("[input]", "Input file or directory")
   .option("-o, --output <path>", "output filename or directory")
   .option("-t, --template <file>", "HTML template")
   .option("-w, --watch", "Run in watch mode")

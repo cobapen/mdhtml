@@ -27,7 +27,7 @@
   ],
   "scripts": {
     "build": "tsc",
-    "build:dev": "tsc",
+    "build:dev": "tsc -p tsconfig.dev.json",
     "build:doc": "node lib/index.js docs --math css/math.css --clean --output public --template docs/_template.html",
     "watch:doc": "node lib/index.js docs --math css/math.css --clean --output public --template docs/_template.html -w",
     "tgen": "node scripts/tgen/bundle.mjs",
@@ -44,6 +44,7 @@
     "@cobapen/markdown": "^0.6.3",
     "chokidar": "^5.0.0",
     "commander": "^14.0.3",
+    "minimatch": "^10.1.2",
     "mustache": "^4.2.0"
   },
   "devDependencies": {

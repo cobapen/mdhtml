@@ -1,6 +1,7 @@
 #! /usr/bin/env node
 import { Command, Option } from "commander";
 import pkg from "../package.json" with { type: "json" };
+import { intoConvOptions, loadConfigFile, mergeOptions } from "./config.js";
 import { MdHtmlConverter, MdHtmlError } from "./mdhtml.js";
 
 const program = new Command();
@@ -12,25 +13,28 @@ program
   .option("-o, --output <path>", "output filename or directory")
   .option("-t, --template <file>", "HTML template")
   .option("-w, --watch", "Run in watch mode")
+  .option("-c, --config <file>", "config file (JSON)")
+  .option("-i, --ignore <pattern>", "ignore files (glob/path)", multiple, [] as string[])
   .option("-q, --quiet", "Run in quiet mode")
   .option("--clean", "Delete output directory before conversion")
   .option("--math [file]", "Generate math stylesheet")
   .addOption(new Option("--stdout", "Print to stdout (file mode only)").hideHelp())
   .addOption(new Option("--math-font-url <path>", "set math font").hideHelp())
-  .action(async (input, options) => {
-    const converter = new MdHtmlConverter({
-      quiet: options.quiet,
-      clean: options.clean,
-      stdout: options.stdout,
-      math: withDefaults(options.math, "math.css"),
-      mathFontUrl: options["mathFontUrl"],
-    });
+  .action(async (input: string, options: Record<string, unknown>) => {
 
-    const template = options.template;
-    const output = options.output;
+    const fileConfig = options.config
+      ? await loadConfigFile(options.config as string)
+      : {};
+
+    const merged = mergeOptions(fileConfig, options);
+    const convOptions = intoConvOptions(merged);
+    const converter = new MdHtmlConverter(convOptions);
+
+    const template = merged.template;
+    const output = merged.output;
     
     try {
-      if (options.watch === true) {
+      if (merged.watch === true) {
         await converter.watch(input, output, template);
       } else {
         await converter.convert(input, output, template);
@@ -46,21 +50,13 @@ program
 
 program.parse(process.argv);
 
-
-/**
- * <none> : undefined
- * --flag : true
- * --flag <arg> : string
- */
-function withDefaults<T>(option: string|boolean|undefined, defaultValue: T) {
-  if (!option) {
-    return undefined;
-  }
-  if (option === true) {
-    return defaultValue;
-  }
-  return option;
+function multiple(val: string, prev: string[]) {
+  prev.push(val);
+  return prev;
 }
+
+
+
 
 
 

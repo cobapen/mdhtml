@@ -6,7 +6,8 @@ import { text as readStreamAsText } from "node:stream/consumers";
 import { pipeline } from "node:stream/promises";
 import { CMarkdown } from "@cobapen/markdown";
 import chokidar from "chokidar";
-import { DirPath, FilePath, PathUtils } from "./pathutil.js";
+import { minimatch } from "minimatch";
+import { DirPath, FilePath, PathUtils, ResolvedPath } from "./pathutil.js";
 import { HtmlTemplate, TemplateProvider } from "./template.js";
 
 type PrintFn = (...args: any[]) => void;
@@ -20,6 +21,7 @@ export interface Options extends RenderOptions {
   clean: boolean,       // Clear dst folder before conversion
   stdout: boolean,        // Output to stdout
   mathFontUrl?: string, // URL to the math font
+  ignore?: string[],     // Ignore patterns (glob/path) for directory mode
 };
 
 const defaultOptions: Options = {
@@ -28,6 +30,7 @@ const defaultOptions: Options = {
   stdout: false,
   math: undefined,
   mathFontUrl: undefined,
+  ignore: [],
 };
 
 export class MdHtmlConverter {
@@ -38,6 +41,12 @@ export class MdHtmlConverter {
   #mdr: MdHtmlRenderer;
   #print: PrintFn;
   #mathcache: string = "";
+
+  static readonly #minimatchOptions = {
+    dot: true,
+    nocase: true,
+    matchBase: true,
+  } as const;
 
   constructor(args?: Partial<Options>) {
     this.#options = { ...defaultOptions, ...args };
@@ -224,7 +233,8 @@ export class MdHtmlConverter {
       await outputDir.clean();
     }
 
-    const files = await inputDir.readdir();
+    const allFiles = await inputDir.readdir();
+    const files = allFiles.filter(f => !this.#shouldIgnore(ResolvedPath.new(f.parentPath + "/" + f.name)));
 
     // If embed-mathcss is ON, prerender all markdown files and obtain a 
     // full math css before transformation.
@@ -299,8 +309,10 @@ export class MdHtmlConverter {
 
     const renderOnChange = async (filepath: string) => {
       const changedFile = FilePath.new(filepath);
-      await this.#transform(changedFile, tmpl);
-      await this.#writeMathcss();
+      if (!this.#shouldIgnore(changedFile)) {
+        await this.#transform(changedFile, tmpl);
+        await this.#writeMathcss();
+      }
     };
 
     const onTemplateChange = async () => {
@@ -314,9 +326,20 @@ export class MdHtmlConverter {
     if (templateFilePath.exists()) {
       watchlist.push(templateFilePath.absPath);
     }
+
+    const shouldIgnore = (p: string): boolean => {
+      if (p === templateFilePath.absPath)
+        return false;
+      return this.#shouldIgnore(ResolvedPath.new(p));
+    };
+    const ignored = (this.#options.ignore && this.#options.ignore.length > 0)
+      ? shouldIgnore
+      : undefined;
+
     const watcher = chokidar.watch(watchlist, {
       persistent: true,
-      ignoreInitial: true
+      ignoreInitial: true,
+      ignored,
     });
     watcher
       .on("add", async filePath => {
@@ -376,6 +399,30 @@ export class MdHtmlConverter {
     const relPath = file.getPath(refDir);
     const path = relPath.startsWith("..") ? file.absPath : relPath;
     this.#print(msg, path);
+  }
+  
+  #shouldIgnore(rp: ResolvedPath): boolean {
+    const patterns = this.#options.ignore;
+    if (!patterns || patterns.length === 0) {
+      return false;
+    }
+
+    const inDir = this.#pathProvider.inputDir;
+    const rel = path.relative(inDir.absPath, rp.absPath).replace(/\\/g, "/");
+    const abs = rp.absPath.replace(/\\/g, "/");
+    const base = rp.basename;
+
+    for (const pattern of patterns) {
+      if (!pattern || typeof pattern !== "string") continue;
+      if (
+        minimatch(rel, pattern, MdHtmlConverter.#minimatchOptions) ||
+        minimatch(abs, pattern, MdHtmlConverter.#minimatchOptions) ||
+        minimatch(base, pattern, MdHtmlConverter.#minimatchOptions)
+      ) {
+        return true;
+      }
+    }
+    return false;
   }
 }
 

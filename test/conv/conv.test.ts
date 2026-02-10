@@ -291,6 +291,17 @@ describe.sequential("Conversion Tests", () => {
         
       ]
     },
+    {
+      name: "input directory with ignore (skip test.md)",
+      input: fpath.input_dir,
+      output: fpath.output,
+      template: undefined,
+      options: { ignore: [fpath.test_md] },
+      verify: [
+        expectFileExists(resolve(fpath.output, fpath.test_html), false),
+        expectFileExists(resolve(fpath.output, fpath.file_html)),
+      ]
+    },
     // {
     //   name: "input directory with template",
     //   input: fpath.input_dir,

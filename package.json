@@ -43,17 +43,17 @@
     "node": ">=20.11.0 <21 || >=21.2.0"
   },
   "dependencies": {
-    "@cobapen/markdown": "^0.6.3",
+    "@cobapen/markdown": "^0.6.4",
     "chokidar": "^5.0.0",
     "commander": "^14.0.3",
     "minimatch": "^10.1.2",
     "mustache": "^4.2.0",
-    "yaml": "^2.8.1"
+    "yaml": "^2.8.2"
   },
   "devDependencies": {
     "@cobapen/eslint-config": "^0.5.1",
     "@types/mustache": "^4.2.6",
-    "@types/node": "^25.2.2",
+    "@types/node": "^25.2.3",
     "@vitest/coverage-v8": "^4.0.18",
     "eslint": "^9.39.2",
     "memfs": "^4.56.10",

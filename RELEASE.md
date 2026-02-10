@@ -1,5 +1,11 @@
 # Release Log
 
+## 0.4.0 (2026-02-10)
+
+- New: Bundled the script to improve cli launch latency
+- New: ignore, config option
+- Chg: small style change in default style
+
 ## 0.3.1 (2026-02-09)
 
 - Updated `@cobapen/markdown` to latest (0.6.3)

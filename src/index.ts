@@ -1,8 +1,6 @@
 #! /usr/bin/env node
 import { Command, Option } from "commander";
 import pkg from "../package.json" with { type: "json" };
-import { intoConvOptions, loadConfigFile, mergeOptions } from "./config.js";
-import { MdHtmlConverter, MdHtmlError } from "./mdhtml.js";
 
 const program = new Command();
 
@@ -21,6 +19,9 @@ program
   .addOption(new Option("--stdout", "Print to stdout (file mode only)").hideHelp())
   .addOption(new Option("--math-font-url <path>", "set math font").hideHelp())
   .action(async (input: string, options: Record<string, unknown>) => {
+
+    const { intoConvOptions, loadConfigFile, mergeOptions } = await import("./config.js");
+    const { MdHtmlConverter, MdHtmlError } = await import("./mdhtml.js");
 
     const fileConfig = options.config
       ? await loadConfigFile(options.config as string)

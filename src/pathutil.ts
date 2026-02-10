@@ -45,6 +45,10 @@ export class ResolvedPath {
     return relPath.startsWith("..") ? this.absPath : relPath;
   }
 
+  get basename(): string {
+    return path.basename(this.absPath);
+  }
+
   /** Return relative path from dir */
   getPath(dir: string|ResolvedPath): string {
     return ResolvedPath.relative(dir, this.absPath);

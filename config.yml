@@ -1,0 +1,8 @@
+input: docs
+output: public
+template: docs/_template.html
+math: css/math.css
+clean: true
+ignore:
+  - ".*"
+  - config.yml

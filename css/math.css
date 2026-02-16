@@ -166,6 +166,7 @@ mjx-container .mjx-selected {
 
 mjx-mtext {
   display: inline-block;
+  text-align: left;
 }
 
 mjx-mstyle {
@@ -676,6 +677,26 @@ mjx-linestrut {
   vertical-align: -.25em;
 }
 
+mjx-msup {
+  display: inline-block;
+  text-align: left;
+}
+
+mjx-msub {
+  display: inline-block;
+  text-align: left;
+}
+
+mjx-mpadded {
+  display: inline-block;
+  text-align: left;
+}
+
+mjx-rbox {
+  display: inline-block;
+  position: relative;
+}
+
 mjx-container[jax="CHTML"] > mjx-math.NCM-N[breakable] > * {
   font-family: MJX-NCM-ZERO, MJX-NCM-N;
 }
@@ -810,6 +831,780 @@ mjx-container[jax="CHTML"] > mjx-math.NCM-N[breakable] > * {
 
 .NCM-SB {
   font-family: MJX-NCM-ZERO, MJX-NCM-SB;
+}
+
+.MB-BN {
+  font-family: MJX-NCM-ZERO, MJX-MB-BN;
+}
+
+.MB-BB {
+  font-family: MJX-NCM-ZERO, MJX-MB-BB;
+}
+
+.MB-BSS {
+  font-family: MJX-NCM-ZERO, MJX-MB-BSS;
+}
+
+.MB-BSSB {
+  font-family: MJX-NCM-ZERO, MJX-MB-BSSB;
+}
+
+.MB-BM {
+  font-family: MJX-NCM-ZERO, MJX-MB-BM;
+}
+
+@font-face /* MB-BN */ {
+  font-family: MJX-MB-BN;
+  src: url("https://cdn.jsdelivr.net/npm/@mathjax/mathjax-bbm-font-extension@4/chtml/woff2/mjx-mb-bn.woff2") format("woff2");
+}
+
+@font-face /* MB-BB */ {
+  font-family: MJX-MB-BB;
+  src: url("https://cdn.jsdelivr.net/npm/@mathjax/mathjax-bboldx-font-extension@4/chtml/woff2/mjx-mb-bb.woff2") format("woff2");
+}
+
+@font-face /* MB-BSS */ {
+  font-family: MJX-MB-BSS;
+  src: url("https://cdn.jsdelivr.net/npm/@mathjax/mathjax-bbm-font-extension@4/chtml/woff2/mjx-mb-bss.woff2") format("woff2");
+}
+
+@font-face /* MB-BSSB */ {
+  font-family: MJX-MB-BSSB;
+  src: url("https://cdn.jsdelivr.net/npm/@mathjax/mathjax-bbm-font-extension@4/chtml/woff2/mjx-mb-bssb.woff2") format("woff2");
+}
+
+@font-face /* MB-BM */ {
+  font-family: MJX-MB-BM;
+  src: url("https://cdn.jsdelivr.net/npm/@mathjax/mathjax-bbm-font-extension@4/chtml/woff2/mjx-mb-bm.woff2") format("woff2");
+}
+
+.MB-BBB {
+  font-family: MJX-NCM-ZERO, MJX-MB-BBB;
+}
+
+.MB-BLB {
+  font-family: MJX-NCM-ZERO, MJX-MB-BLB;
+}
+
+@font-face /* MB-BBB */ {
+  font-family: MJX-MB-BBB;
+  src: url("https://cdn.jsdelivr.net/npm/@mathjax/mathjax-bboldx-font-extension@4/chtml/woff2/mjx-mb-bbb.woff2") format("woff2");
+}
+
+@font-face /* MB-BLB */ {
+  font-family: MJX-MB-BLB;
+  src: url("https://cdn.jsdelivr.net/npm/@mathjax/mathjax-bboldx-font-extension@4/chtml/woff2/mjx-mb-blb.woff2") format("woff2");
+}
+
+.MD-DS {
+  font-family: MJX-NCM-ZERO, MJX-MD-DS;
+}
+
+.MD-DR {
+  font-family: MJX-NCM-ZERO, MJX-MD-DR;
+}
+
+@font-face /* MD-DS */ {
+  font-family: MJX-MD-DS;
+  src: url("https://cdn.jsdelivr.net/npm/@mathjax/mathjax-dsfont-font-extension@4/chtml/woff2/mjx-md-ds.woff2") format("woff2");
+}
+
+@font-face /* MD-DR */ {
+  font-family: MJX-MD-DR;
+  src: url("https://cdn.jsdelivr.net/npm/@mathjax/mathjax-dsfont-font-extension@4/chtml/woff2/mjx-md-dr.woff2") format("woff2");
+}
+
+.MHC-M {
+  font-family: MJX-NCM-ZERO, MJX-MHC-M;
+}
+
+.MHC-N {
+  font-family: MJX-NCM-ZERO, MJX-MHC-N;
+}
+
+@font-face /* MHC-M */ {
+  font-family: MJX-MHC-M;
+  src: url("https://cdn.jsdelivr.net/npm/@mathjax/mathjax-mhchem-font-extension@4/chtml/woff2/mjx-mhc-m.woff2") format("woff2");
+}
+
+@font-face /* MHC-N */ {
+  font-family: MJX-MHC-N;
+  src: url("https://cdn.jsdelivr.net/npm/@mathjax/mathjax-mhchem-font-extension@4/chtml/woff2/mjx-mhc-n.woff2") format("woff2");
+}
+
+.NCM-AB {
+  font-family: MJX-NCM-ZERO, MJX-NCM-AB;
+}
+
+.NCM-AI {
+  font-family: MJX-NCM-ZERO, MJX-NCM-AI;
+}
+
+.NCM-ABI {
+  font-family: MJX-NCM-ZERO, MJX-NCM-ABI;
+}
+
+@font-face /* NCM-AB */ {
+  font-family: MJX-NCM-AB;
+  src: url("https://cdn.jsdelivr.net/npm/@mathjax/mathjax-newcm-font@4/chtml/woff2/mjx-ncm-ab.woff2") format("woff2");
+}
+
+@font-face /* NCM-AI */ {
+  font-family: MJX-NCM-AI;
+  src: url("https://cdn.jsdelivr.net/npm/@mathjax/mathjax-newcm-font@4/chtml/woff2/mjx-ncm-ai.woff2") format("woff2");
+}
+
+@font-face /* NCM-ABI */ {
+  font-family: MJX-NCM-ABI;
+  src: url("https://cdn.jsdelivr.net/npm/@mathjax/mathjax-newcm-font@4/chtml/woff2/mjx-ncm-abi.woff2") format("woff2");
+}
+
+.NCM-ABB {
+  font-family: MJX-NCM-ZERO, MJX-NCM-ABB;
+}
+
+.NCM-ABBI {
+  font-family: MJX-NCM-ZERO, MJX-NCM-ABBI;
+}
+
+@font-face /* NCM-ABB */ {
+  font-family: MJX-NCM-ABB;
+  src: url("https://cdn.jsdelivr.net/npm/@mathjax/mathjax-newcm-font@4/chtml/woff2/mjx-ncm-abb.woff2") format("woff2");
+}
+
+@font-face /* NCM-ABBI */ {
+  font-family: MJX-NCM-ABBI;
+  src: url("https://cdn.jsdelivr.net/npm/@mathjax/mathjax-newcm-font@4/chtml/woff2/mjx-ncm-abbi.woff2") format("woff2");
+}
+
+.NCM-AR {
+  font-family: MJX-NCM-ZERO, MJX-NCM-AR;
+}
+
+.NCM-ARL {
+  font-family: MJX-NCM-ZERO, MJX-NCM-ARL;
+}
+
+@font-face /* NCM-AR */ {
+  font-family: MJX-NCM-AR;
+  src: url("https://cdn.jsdelivr.net/npm/@mathjax/mathjax-newcm-font@4/chtml/woff2/mjx-ncm-ar.woff2") format("woff2");
+}
+
+@font-face /* NCM-ARL */ {
+  font-family: MJX-NCM-ARL;
+  src: url("https://cdn.jsdelivr.net/npm/@mathjax/mathjax-newcm-font@4/chtml/woff2/mjx-ncm-arl.woff2") format("woff2");
+}
+
+.NCM-brd {
+  font-family: MJX-NCM-ZERO, MJX-NCM-brd;
+}
+
+@font-face /* NCM-brd */ {
+  font-family: MJX-NCM-brd;
+  src: url("https://cdn.jsdelivr.net/npm/@mathjax/mathjax-newcm-font@4/chtml/woff2/mjx-ncm-brd.woff2") format("woff2");
+}
+
+.NCM-br {
+  font-family: MJX-NCM-ZERO, MJX-NCM-br;
+}
+
+@font-face /* NCM-br */ {
+  font-family: MJX-NCM-br;
+  src: url("https://cdn.jsdelivr.net/npm/@mathjax/mathjax-newcm-font@4/chtml/woff2/mjx-ncm-br.woff2") format("woff2");
+}
+
+.NCM-CH {
+  font-family: MJX-NCM-ZERO, MJX-NCM-CH;
+}
+
+.NCM-CHB {
+  font-family: MJX-NCM-ZERO, MJX-NCM-CHB;
+}
+
+.NCM-CHI {
+  font-family: MJX-NCM-ZERO, MJX-NCM-CHI;
+}
+
+.NCM-CHBI {
+  font-family: MJX-NCM-ZERO, MJX-NCM-CHBI;
+}
+
+@font-face /* NCM-CH */ {
+  font-family: MJX-NCM-CH;
+  src: url("https://cdn.jsdelivr.net/npm/@mathjax/mathjax-newcm-font@4/chtml/woff2/mjx-ncm-ch.woff2") format("woff2");
+}
+
+@font-face /* NCM-CHB */ {
+  font-family: MJX-NCM-CHB;
+  src: url("https://cdn.jsdelivr.net/npm/@mathjax/mathjax-newcm-font@4/chtml/woff2/mjx-ncm-chb.woff2") format("woff2");
+}
+
+@font-face /* NCM-CHI */ {
+  font-family: MJX-NCM-CHI;
+  src: url("https://cdn.jsdelivr.net/npm/@mathjax/mathjax-newcm-font@4/chtml/woff2/mjx-ncm-chi.woff2") format("woff2");
+}
+
+@font-face /* NCM-CHBI */ {
+  font-family: MJX-NCM-CHBI;
+  src: url("https://cdn.jsdelivr.net/npm/@mathjax/mathjax-newcm-font@4/chtml/woff2/mjx-ncm-chbi.woff2") format("woff2");
+}
+
+.NCM-CYSS {
+  font-family: MJX-NCM-ZERO, MJX-NCM-CYSS;
+}
+
+.NCM-CYSSB {
+  font-family: MJX-NCM-ZERO, MJX-NCM-CYSSB;
+}
+
+.NCM-CYSSI {
+  font-family: MJX-NCM-ZERO, MJX-NCM-CYSSI;
+}
+
+.NCM-CYSSBI {
+  font-family: MJX-NCM-ZERO, MJX-NCM-CYSSBI;
+}
+
+@font-face /* NCM-CYSS */ {
+  font-family: MJX-NCM-CYSS;
+  src: url("https://cdn.jsdelivr.net/npm/@mathjax/mathjax-newcm-font@4/chtml/woff2/mjx-ncm-cyss.woff2") format("woff2");
+}
+
+@font-face /* NCM-CYSSB */ {
+  font-family: MJX-NCM-CYSSB;
+  src: url("https://cdn.jsdelivr.net/npm/@mathjax/mathjax-newcm-font@4/chtml/woff2/mjx-ncm-cyssb.woff2") format("woff2");
+}
+
+@font-face /* NCM-CYSSI */ {
+  font-family: MJX-NCM-CYSSI;
+  src: url("https://cdn.jsdelivr.net/npm/@mathjax/mathjax-newcm-font@4/chtml/woff2/mjx-ncm-cyssi.woff2") format("woff2");
+}
+
+@font-face /* NCM-CYSSBI */ {
+  font-family: MJX-NCM-CYSSBI;
+  src: url("https://cdn.jsdelivr.net/npm/@mathjax/mathjax-newcm-font@4/chtml/woff2/mjx-ncm-cyssbi.woff2") format("woff2");
+}
+
+.NCM-CY {
+  font-family: MJX-NCM-ZERO, MJX-NCM-CY;
+}
+
+.NCM-CYB {
+  font-family: MJX-NCM-ZERO, MJX-NCM-CYB;
+}
+
+.NCM-CYI {
+  font-family: MJX-NCM-ZERO, MJX-NCM-CYI;
+}
+
+.NCM-CYBI {
+  font-family: MJX-NCM-ZERO, MJX-NCM-CYBI;
+}
+
+@font-face /* NCM-CY */ {
+  font-family: MJX-NCM-CY;
+  src: url("https://cdn.jsdelivr.net/npm/@mathjax/mathjax-newcm-font@4/chtml/woff2/mjx-ncm-cy.woff2") format("woff2");
+}
+
+@font-face /* NCM-CYB */ {
+  font-family: MJX-NCM-CYB;
+  src: url("https://cdn.jsdelivr.net/npm/@mathjax/mathjax-newcm-font@4/chtml/woff2/mjx-ncm-cyb.woff2") format("woff2");
+}
+
+@font-face /* NCM-CYI */ {
+  font-family: MJX-NCM-CYI;
+  src: url("https://cdn.jsdelivr.net/npm/@mathjax/mathjax-newcm-font@4/chtml/woff2/mjx-ncm-cyi.woff2") format("woff2");
+}
+
+@font-face /* NCM-CYBI */ {
+  font-family: MJX-NCM-CYBI;
+  src: url("https://cdn.jsdelivr.net/npm/@mathjax/mathjax-newcm-font@4/chtml/woff2/mjx-ncm-cybi.woff2") format("woff2");
+}
+
+.NCM-DV {
+  font-family: MJX-NCM-ZERO, MJX-NCM-DV;
+}
+
+.NCM-DVB {
+  font-family: MJX-NCM-ZERO, MJX-NCM-DVB;
+}
+
+.NCM-DVI {
+  font-family: MJX-NCM-ZERO, MJX-NCM-DVI;
+}
+
+.NCM-DVBI {
+  font-family: MJX-NCM-ZERO, MJX-NCM-DVBI;
+}
+
+@font-face /* NCM-DV */ {
+  font-family: MJX-NCM-DV;
+  src: url("https://cdn.jsdelivr.net/npm/@mathjax/mathjax-newcm-font@4/chtml/woff2/mjx-ncm-dv.woff2") format("woff2");
+}
+
+@font-face /* NCM-DVB */ {
+  font-family: MJX-NCM-DVB;
+  src: url("https://cdn.jsdelivr.net/npm/@mathjax/mathjax-newcm-font@4/chtml/woff2/mjx-ncm-dvb.woff2") format("woff2");
+}
+
+@font-face /* NCM-DVI */ {
+  font-family: MJX-NCM-DVI;
+  src: url("https://cdn.jsdelivr.net/npm/@mathjax/mathjax-newcm-font@4/chtml/woff2/mjx-ncm-dvi.woff2") format("woff2");
+}
+
+@font-face /* NCM-DVBI */ {
+  font-family: MJX-NCM-DVBI;
+  src: url("https://cdn.jsdelivr.net/npm/@mathjax/mathjax-newcm-font@4/chtml/woff2/mjx-ncm-dvbi.woff2") format("woff2");
+}
+
+.NCM-GKSS {
+  font-family: MJX-NCM-ZERO, MJX-NCM-GKSS;
+}
+
+.NCM-GKSSB {
+  font-family: MJX-NCM-ZERO, MJX-NCM-GKSSB;
+}
+
+.NCM-GKSSI {
+  font-family: MJX-NCM-ZERO, MJX-NCM-GKSSI;
+}
+
+.NCM-GKSSBI {
+  font-family: MJX-NCM-ZERO, MJX-NCM-GKSSBI;
+}
+
+@font-face /* NCM-GKSS */ {
+  font-family: MJX-NCM-GKSS;
+  src: url("https://cdn.jsdelivr.net/npm/@mathjax/mathjax-newcm-font@4/chtml/woff2/mjx-ncm-gkss.woff2") format("woff2");
+}
+
+@font-face /* NCM-GKSSB */ {
+  font-family: MJX-NCM-GKSSB;
+  src: url("https://cdn.jsdelivr.net/npm/@mathjax/mathjax-newcm-font@4/chtml/woff2/mjx-ncm-gkssb.woff2") format("woff2");
+}
+
+@font-face /* NCM-GKSSI */ {
+  font-family: MJX-NCM-GKSSI;
+  src: url("https://cdn.jsdelivr.net/npm/@mathjax/mathjax-newcm-font@4/chtml/woff2/mjx-ncm-gkssi.woff2") format("woff2");
+}
+
+@font-face /* NCM-GKSSBI */ {
+  font-family: MJX-NCM-GKSSBI;
+  src: url("https://cdn.jsdelivr.net/npm/@mathjax/mathjax-newcm-font@4/chtml/woff2/mjx-ncm-gkssbi.woff2") format("woff2");
+}
+
+.NCM-GK {
+  font-family: MJX-NCM-ZERO, MJX-NCM-GK;
+}
+
+.NCM-GKB {
+  font-family: MJX-NCM-ZERO, MJX-NCM-GKB;
+}
+
+.NCM-GKI {
+  font-family: MJX-NCM-ZERO, MJX-NCM-GKI;
+}
+
+.NCM-GKBI {
+  font-family: MJX-NCM-ZERO, MJX-NCM-GKBI;
+}
+
+@font-face /* NCM-GK */ {
+  font-family: MJX-NCM-GK;
+  src: url("https://cdn.jsdelivr.net/npm/@mathjax/mathjax-newcm-font@4/chtml/woff2/mjx-ncm-gk.woff2") format("woff2");
+}
+
+@font-face /* NCM-GKB */ {
+  font-family: MJX-NCM-GKB;
+  src: url("https://cdn.jsdelivr.net/npm/@mathjax/mathjax-newcm-font@4/chtml/woff2/mjx-ncm-gkb.woff2") format("woff2");
+}
+
+@font-face /* NCM-GKI */ {
+  font-family: MJX-NCM-GKI;
+  src: url("https://cdn.jsdelivr.net/npm/@mathjax/mathjax-newcm-font@4/chtml/woff2/mjx-ncm-gki.woff2") format("woff2");
+}
+
+@font-face /* NCM-GKBI */ {
+  font-family: MJX-NCM-GKBI;
+  src: url("https://cdn.jsdelivr.net/npm/@mathjax/mathjax-newcm-font@4/chtml/woff2/mjx-ncm-gkbi.woff2") format("woff2");
+}
+
+.NCM-HE {
+  font-family: MJX-NCM-ZERO, MJX-NCM-HE;
+}
+
+.NCM-HEB {
+  font-family: MJX-NCM-ZERO, MJX-NCM-HEB;
+}
+
+.NCM-HEI {
+  font-family: MJX-NCM-ZERO, MJX-NCM-HEI;
+}
+
+.NCM-HEBI {
+  font-family: MJX-NCM-ZERO, MJX-NCM-HEBI;
+}
+
+@font-face /* NCM-HE */ {
+  font-family: MJX-NCM-HE;
+  src: url("https://cdn.jsdelivr.net/npm/@mathjax/mathjax-newcm-font@4/chtml/woff2/mjx-ncm-he.woff2") format("woff2");
+}
+
+@font-face /* NCM-HEB */ {
+  font-family: MJX-NCM-HEB;
+  src: url("https://cdn.jsdelivr.net/npm/@mathjax/mathjax-newcm-font@4/chtml/woff2/mjx-ncm-heb.woff2") format("woff2");
+}
+
+@font-face /* NCM-HEI */ {
+  font-family: MJX-NCM-HEI;
+  src: url("https://cdn.jsdelivr.net/npm/@mathjax/mathjax-newcm-font@4/chtml/woff2/mjx-ncm-hei.woff2") format("woff2");
+}
+
+@font-face /* NCM-HEBI */ {
+  font-family: MJX-NCM-HEBI;
+  src: url("https://cdn.jsdelivr.net/npm/@mathjax/mathjax-newcm-font@4/chtml/woff2/mjx-ncm-hebi.woff2") format("woff2");
+}
+
+.NCM-LB {
+  font-family: MJX-NCM-ZERO, MJX-NCM-LB;
+}
+
+@font-face /* NCM-LB */ {
+  font-family: MJX-NCM-LB;
+  src: url("https://cdn.jsdelivr.net/npm/@mathjax/mathjax-newcm-font@4/chtml/woff2/mjx-ncm-lb.woff2") format("woff2");
+}
+
+.NCM-LIB {
+  font-family: MJX-NCM-ZERO, MJX-NCM-LIB;
+}
+
+@font-face /* NCM-LIB */ {
+  font-family: MJX-NCM-LIB;
+  src: url("https://cdn.jsdelivr.net/npm/@mathjax/mathjax-newcm-font@4/chtml/woff2/mjx-ncm-lib.woff2") format("woff2");
+}
+
+.NCM-LI {
+  font-family: MJX-NCM-ZERO, MJX-NCM-LI;
+}
+
+@font-face /* NCM-LI */ {
+  font-family: MJX-NCM-LI;
+  src: url("https://cdn.jsdelivr.net/npm/@mathjax/mathjax-newcm-font@4/chtml/woff2/mjx-ncm-li.woff2") format("woff2");
+}
+
+.NCM-LR {
+  font-family: MJX-NCM-ZERO, MJX-NCM-LR;
+}
+
+@font-face /* NCM-LR */ {
+  font-family: MJX-NCM-LR;
+  src: url("https://cdn.jsdelivr.net/npm/@mathjax/mathjax-newcm-font@4/chtml/woff2/mjx-ncm-lr.woff2") format("woff2");
+}
+
+.NCM-MAR {
+  font-family: MJX-NCM-ZERO, MJX-NCM-MAR;
+}
+
+@font-face /* NCM-MAR */ {
+  font-family: MJX-NCM-MAR;
+  src: url("https://cdn.jsdelivr.net/npm/@mathjax/mathjax-newcm-font@4/chtml/woff2/mjx-ncm-mar.woff2") format("woff2");
+}
+
+.NCM-MM {
+  font-family: MJX-NCM-ZERO, MJX-NCM-MM;
+}
+
+@font-face /* NCM-MM */ {
+  font-family: MJX-NCM-MM;
+  src: url("https://cdn.jsdelivr.net/npm/@mathjax/mathjax-newcm-font@4/chtml/woff2/mjx-ncm-mm.woff2") format("woff2");
+}
+
+.NCM-MX {
+  font-family: MJX-NCM-ZERO, MJX-NCM-MX;
+}
+
+@font-face /* NCM-MX */ {
+  font-family: MJX-NCM-MX;
+  src: url("https://cdn.jsdelivr.net/npm/@mathjax/mathjax-newcm-font@4/chtml/woff2/mjx-ncm-mx.woff2") format("woff2");
+}
+
+.NCM-ML {
+  font-family: MJX-NCM-ZERO, MJX-NCM-ML;
+}
+
+@font-face /* NCM-ML */ {
+  font-family: MJX-NCM-ML;
+  src: url("https://cdn.jsdelivr.net/npm/@mathjax/mathjax-newcm-font@4/chtml/woff2/mjx-ncm-ml.woff2") format("woff2");
+}
+
+.NCM-MSH {
+  font-family: MJX-NCM-ZERO, MJX-NCM-MSH;
+}
+
+@font-face /* NCM-MSH */ {
+  font-family: MJX-NCM-MSH;
+  src: url("https://cdn.jsdelivr.net/npm/@mathjax/mathjax-newcm-font@4/chtml/woff2/mjx-ncm-msh.woff2") format("woff2");
+}
+
+.NCM-PHSS {
+  font-family: MJX-NCM-ZERO, MJX-NCM-PHSS;
+}
+
+.NCM-PHSSB {
+  font-family: MJX-NCM-ZERO, MJX-NCM-PHSSB;
+}
+
+.NCM-PHSSI {
+  font-family: MJX-NCM-ZERO, MJX-NCM-PHSSI;
+}
+
+.NCM-PHSSBI {
+  font-family: MJX-NCM-ZERO, MJX-NCM-PHSSBI;
+}
+
+@font-face /* NCM-PHSS */ {
+  font-family: MJX-NCM-PHSS;
+  src: url("https://cdn.jsdelivr.net/npm/@mathjax/mathjax-newcm-font@4/chtml/woff2/mjx-ncm-phss.woff2") format("woff2");
+}
+
+@font-face /* NCM-PHSSB */ {
+  font-family: MJX-NCM-PHSSB;
+  src: url("https://cdn.jsdelivr.net/npm/@mathjax/mathjax-newcm-font@4/chtml/woff2/mjx-ncm-phssb.woff2") format("woff2");
+}
+
+@font-face /* NCM-PHSSI */ {
+  font-family: MJX-NCM-PHSSI;
+  src: url("https://cdn.jsdelivr.net/npm/@mathjax/mathjax-newcm-font@4/chtml/woff2/mjx-ncm-phssi.woff2") format("woff2");
+}
+
+@font-face /* NCM-PHSSBI */ {
+  font-family: MJX-NCM-PHSSBI;
+  src: url("https://cdn.jsdelivr.net/npm/@mathjax/mathjax-newcm-font@4/chtml/woff2/mjx-ncm-phssbi.woff2") format("woff2");
+}
+
+.NCM-PH {
+  font-family: MJX-NCM-ZERO, MJX-NCM-PH;
+}
+
+.NCM-PHB {
+  font-family: MJX-NCM-ZERO, MJX-NCM-PHB;
+}
+
+.NCM-PHI {
+  font-family: MJX-NCM-ZERO, MJX-NCM-PHI;
+}
+
+.NCM-PHBI {
+  font-family: MJX-NCM-ZERO, MJX-NCM-PHBI;
+}
+
+@font-face /* NCM-PH */ {
+  font-family: MJX-NCM-PH;
+  src: url("https://cdn.jsdelivr.net/npm/@mathjax/mathjax-newcm-font@4/chtml/woff2/mjx-ncm-ph.woff2") format("woff2");
+}
+
+@font-face /* NCM-PHB */ {
+  font-family: MJX-NCM-PHB;
+  src: url("https://cdn.jsdelivr.net/npm/@mathjax/mathjax-newcm-font@4/chtml/woff2/mjx-ncm-phb.woff2") format("woff2");
+}
+
+@font-face /* NCM-PHI */ {
+  font-family: MJX-NCM-PHI;
+  src: url("https://cdn.jsdelivr.net/npm/@mathjax/mathjax-newcm-font@4/chtml/woff2/mjx-ncm-phi.woff2") format("woff2");
+}
+
+@font-face /* NCM-PHBI */ {
+  font-family: MJX-NCM-PHBI;
+  src: url("https://cdn.jsdelivr.net/npm/@mathjax/mathjax-newcm-font@4/chtml/woff2/mjx-ncm-phbi.woff2") format("woff2");
+}
+
+.NCM-PU {
+  font-family: MJX-NCM-ZERO, MJX-NCM-PU;
+}
+
+.NCM-PUB {
+  font-family: MJX-NCM-ZERO, MJX-NCM-PUB;
+}
+
+.NCM-PUI {
+  font-family: MJX-NCM-ZERO, MJX-NCM-PUI;
+}
+
+.NCM-PUBI {
+  font-family: MJX-NCM-ZERO, MJX-NCM-PUBI;
+}
+
+@font-face /* NCM-PU */ {
+  font-family: MJX-NCM-PU;
+  src: url("https://cdn.jsdelivr.net/npm/@mathjax/mathjax-newcm-font@4/chtml/woff2/mjx-ncm-pu.woff2") format("woff2");
+}
+
+@font-face /* NCM-PUB */ {
+  font-family: MJX-NCM-PUB;
+  src: url("https://cdn.jsdelivr.net/npm/@mathjax/mathjax-newcm-font@4/chtml/woff2/mjx-ncm-pub.woff2") format("woff2");
+}
+
+@font-face /* NCM-PUI */ {
+  font-family: MJX-NCM-PUI;
+  src: url("https://cdn.jsdelivr.net/npm/@mathjax/mathjax-newcm-font@4/chtml/woff2/mjx-ncm-pui.woff2") format("woff2");
+}
+
+@font-face /* NCM-PUBI */ {
+  font-family: MJX-NCM-PUBI;
+  src: url("https://cdn.jsdelivr.net/npm/@mathjax/mathjax-newcm-font@4/chtml/woff2/mjx-ncm-pubi.woff2") format("woff2");
+}
+
+.NCM-SSLB {
+  font-family: MJX-NCM-ZERO, MJX-NCM-SSLB;
+}
+
+@font-face /* NCM-SSLB */ {
+  font-family: MJX-NCM-SSLB;
+  src: url("https://cdn.jsdelivr.net/npm/@mathjax/mathjax-newcm-font@4/chtml/woff2/mjx-ncm-sslb.woff2") format("woff2");
+}
+
+.NCM-SSLIB {
+  font-family: MJX-NCM-ZERO, MJX-NCM-SSLIB;
+}
+
+@font-face /* NCM-SSLIB */ {
+  font-family: MJX-NCM-SSLIB;
+  src: url("https://cdn.jsdelivr.net/npm/@mathjax/mathjax-newcm-font@4/chtml/woff2/mjx-ncm-sslib.woff2") format("woff2");
+}
+
+.NCM-SSX {
+  font-family: MJX-NCM-ZERO, MJX-NCM-SSX;
+}
+
+.NCM-SSBX {
+  font-family: MJX-NCM-ZERO, MJX-NCM-SSBX;
+}
+
+.NCM-SSIX {
+  font-family: MJX-NCM-ZERO, MJX-NCM-SSIX;
+}
+
+.NCM-SSBIX {
+  font-family: MJX-NCM-ZERO, MJX-NCM-SSBIX;
+}
+
+@font-face /* NCM-SSX */ {
+  font-family: MJX-NCM-SSX;
+  src: url("https://cdn.jsdelivr.net/npm/@mathjax/mathjax-newcm-font@4/chtml/woff2/mjx-ncm-ssx.woff2") format("woff2");
+}
+
+@font-face /* NCM-SSBX */ {
+  font-family: MJX-NCM-SSBX;
+  src: url("https://cdn.jsdelivr.net/npm/@mathjax/mathjax-newcm-font@4/chtml/woff2/mjx-ncm-ssbx.woff2") format("woff2");
+}
+
+@font-face /* NCM-SSIX */ {
+  font-family: MJX-NCM-SSIX;
+  src: url("https://cdn.jsdelivr.net/npm/@mathjax/mathjax-newcm-font@4/chtml/woff2/mjx-ncm-ssix.woff2") format("woff2");
+}
+
+@font-face /* NCM-SSBIX */ {
+  font-family: MJX-NCM-SSBIX;
+  src: url("https://cdn.jsdelivr.net/npm/@mathjax/mathjax-newcm-font@4/chtml/woff2/mjx-ncm-ssbix.woff2") format("woff2");
+}
+
+.NCM-SSLI {
+  font-family: MJX-NCM-ZERO, MJX-NCM-SSLI;
+}
+
+@font-face /* NCM-SSLI */ {
+  font-family: MJX-NCM-SSLI;
+  src: url("https://cdn.jsdelivr.net/npm/@mathjax/mathjax-newcm-font@4/chtml/woff2/mjx-ncm-ssli.woff2") format("woff2");
+}
+
+.NCM-SSLR {
+  font-family: MJX-NCM-ZERO, MJX-NCM-SSLR;
+}
+
+@font-face /* NCM-SSLR */ {
+  font-family: MJX-NCM-SSLR;
+  src: url("https://cdn.jsdelivr.net/npm/@mathjax/mathjax-newcm-font@4/chtml/woff2/mjx-ncm-sslr.woff2") format("woff2");
+}
+
+.NCM-SH {
+  font-family: MJX-NCM-ZERO, MJX-NCM-SH;
+}
+
+.NCM-SHB {
+  font-family: MJX-NCM-ZERO, MJX-NCM-SHB;
+}
+
+.NCM-SHI {
+  font-family: MJX-NCM-ZERO, MJX-NCM-SHI;
+}
+
+.NCM-SHBI {
+  font-family: MJX-NCM-ZERO, MJX-NCM-SHBI;
+}
+
+@font-face /* NCM-SH */ {
+  font-family: MJX-NCM-SH;
+  src: url("https://cdn.jsdelivr.net/npm/@mathjax/mathjax-newcm-font@4/chtml/woff2/mjx-ncm-sh.woff2") format("woff2");
+}
+
+@font-face /* NCM-SHB */ {
+  font-family: MJX-NCM-SHB;
+  src: url("https://cdn.jsdelivr.net/npm/@mathjax/mathjax-newcm-font@4/chtml/woff2/mjx-ncm-shb.woff2") format("woff2");
+}
+
+@font-face /* NCM-SHI */ {
+  font-family: MJX-NCM-SHI;
+  src: url("https://cdn.jsdelivr.net/npm/@mathjax/mathjax-newcm-font@4/chtml/woff2/mjx-ncm-shi.woff2") format("woff2");
+}
+
+@font-face /* NCM-SHBI */ {
+  font-family: MJX-NCM-SHBI;
+  src: url("https://cdn.jsdelivr.net/npm/@mathjax/mathjax-newcm-font@4/chtml/woff2/mjx-ncm-shbi.woff2") format("woff2");
+}
+
+.NCM-SYB {
+  font-family: MJX-NCM-ZERO, MJX-NCM-SYB;
+}
+
+.NCM-SYI {
+  font-family: MJX-NCM-ZERO, MJX-NCM-SYI;
+}
+
+.NCM-SYBI {
+  font-family: MJX-NCM-ZERO, MJX-NCM-SYBI;
+}
+
+@font-face /* NCM-SYB */ {
+  font-family: MJX-NCM-SYB;
+  src: url("https://cdn.jsdelivr.net/npm/@mathjax/mathjax-newcm-font@4/chtml/woff2/mjx-ncm-syb.woff2") format("woff2");
+}
+
+@font-face /* NCM-SYI */ {
+  font-family: MJX-NCM-SYI;
+  src: url("https://cdn.jsdelivr.net/npm/@mathjax/mathjax-newcm-font@4/chtml/woff2/mjx-ncm-syi.woff2") format("woff2");
+}
+
+@font-face /* NCM-SYBI */ {
+  font-family: MJX-NCM-SYBI;
+  src: url("https://cdn.jsdelivr.net/npm/@mathjax/mathjax-newcm-font@4/chtml/woff2/mjx-ncm-sybi.woff2") format("woff2");
+}
+
+.NCM-SY {
+  font-family: MJX-NCM-ZERO, MJX-NCM-SY;
+}
+
+@font-face /* NCM-SY */ {
+  font-family: MJX-NCM-SY;
+  src: url("https://cdn.jsdelivr.net/npm/@mathjax/mathjax-newcm-font@4/chtml/woff2/mjx-ncm-sy.woff2") format("woff2");
+}
+
+.NCM-VX {
+  font-family: MJX-NCM-ZERO, MJX-NCM-VX;
+}
+
+@font-face /* NCM-VX */ {
+  font-family: MJX-NCM-VX;
+  src: url("https://cdn.jsdelivr.net/npm/@mathjax/mathjax-newcm-font@4/chtml/woff2/mjx-ncm-vx.woff2") format("woff2");
 }
 
 @font-face /* MJX-NCM-ZERO */ {
@@ -1063,4 +1858,80 @@ mjx-c.mjx-c1D7CE {
 
 mjx-c.mjx-c30 {
   padding: 0.666em 0.5em 0.022em 0;
+}
+
+mjx-c.mjx-c1D44E {
+  padding: 0.442em 0.529em 0.011em 0;
+}
+
+mjx-c.mjx-c1D465 {
+  padding: 0.442em 0.572em 0.011em 0;
+}
+
+mjx-c.mjx-c32 {
+  padding: 0.666em 0.5em 0 0;
+}
+
+mjx-c.mjx-c1D44F {
+  padding: 0.694em 0.429em 0.011em 0;
+}
+
+mjx-c.mjx-c43 {
+  padding: 0.705em 0.722em 0.022em 0;
+}
+
+mjx-c.mjx-c4F {
+  padding: 0.705em 0.778em 0.022em 0;
+}
+
+mjx-c.mjx-c1D434 {
+  padding: 0.716em 0.75em 0 0;
+}
+
+mjx-c.mjx-cE429.MHC-M {
+  padding: 0.51em 1.463em 0.01em 0;
+}
+
+mjx-c.mjx-c35 {
+  padding: 0.666em 0.5em 0.022em 0;
+}
+
+mjx-c.mjx-cA0 {
+  padding: 0 0.332em 0 0;
+}
+
+mjx-c.mjx-c6D {
+  padding: 0.442em 0.833em 0 0;
+}
+
+mjx-c.mjx-c6F {
+  padding: 0.448em 0.5em 0.011em 0;
+}
+
+mjx-c.mjx-c6C {
+  padding: 0.694em 0.278em 0 0;
+}
+
+mjx-c.mjx-c4C {
+  padding: 0.683em 0.625em 0 0;
+}
+
+mjx-c.mjx-c394 {
+  padding: 0.716em 0.833em 0 0;
+}
+
+mjx-c.mjx-c1D453 {
+  padding: 0.705em 0.552em 0.205em 0;
+}
+
+mjx-c.mjx-c2061 {
+  padding: 0 0 0 0;
+}
+
+mjx-c.mjx-c1D466 {
+  padding: 0.442em 0.49em 0.205em 0;
+}
+
+mjx-c.mjx-c1D467 {
+  padding: 0.442em 0.467em 0.011em 0;
 }

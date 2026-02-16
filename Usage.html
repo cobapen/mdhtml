@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="root" content="index.html"/>
   <title>Usage.md</title>
+  <link rel="icon" type="image/svg+xml" href="images/favicon.svg">
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/highlight.css">
   <link rel="stylesheet" href="css/math.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
 </head>
 <body>
   <div id="wrap">
@@ -51,16 +51,6 @@
 <td>テンプレートファイルを指定</td>
 </tr>
 <tr>
-<td><code>--clean</code></td>
-<td></td>
-<td>変換前に出力先のフォルダを全消去します</td>
-</tr>
-<tr>
-<td><code>--quiet</code></td>
-<td><code>-q</code></td>
-<td>変換メッセージをOFFにします</td>
-</tr>
-<tr>
 <td><code>--watch</code></td>
 <td><code>-w</code></td>
 <td>
@@ -69,12 +59,40 @@
 </td>
 </tr>
 <tr>
+<td><code>--clean</code></td>
+<td><code>-c</code></td>
+<td>変換前に出力先のフォルダを全消去します</td>
+</tr>
+<tr>
+<td><code>--ignore</code></td>
+<td><code>-i</code></td>
+<td>
+<p>変換対象から除外するパターン(path,glob)を指定します</p>
+<p>複数回指定できます。</p>
+<p></p>
+</td>
+</tr>
+<tr>
+<td><code>--quiet</code></td>
+<td><code>-q</code></td>
+<td>変換メッセージをOFFにします</td>
+</tr>
+<tr>
+<td><code>--config</code></td>
+<td></td>
+<td>
+<p>設定ファイル(JSON)を読み込みます</p>
+<p>設定ファイルの内容はコマンドラインの指定で上書きされます。</p>
+<p></p>
+</td>
+</tr>
+<tr>
 <td><code>--math [path]</code></td>
 <td></td>
 <td>
 <p>数式用のCSSファイルを出力します (パス省略時: math.css)</p>
 <p>本文に数式を使う場合、数式描画用のCSSファイルが必要です。</p>
-<p>本ツールはインライン数式に katex を、ブロック数式に mathjax を使います。これらを表示するフォントとスタイルシートは CDN からダウンロードする想定ですが、mathjax のスタイルシートはサイズが大きく、オンラインで配信されていません。本オプションを利用すると入力ファイルを表示できる必要最小限のスタイルシートを生成します。</p>
+<p>数式を表示するためのフォントやスタイルシートは CDN からダウンロードする想定ですが、mathjax のスタイルシートはサイズが大きく、オンラインで配信されていません。本オプションを利用すると入力ファイルを表示できる必要最小限のスタイルシートを生成します。</p>
 </td>
 </tr>
 </table>

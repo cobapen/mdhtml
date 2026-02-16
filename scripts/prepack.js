@@ -28,9 +28,3 @@ spawnSync("npm", ["run", "build"], {
   cwd: __projectRoot,
   shell: true,
 });
-
-spawnSync("node", ["scripts/bundle.js"], {
-  stdio: "inherit",
-  cwd: __projectRoot,
-  shell: true,
-});

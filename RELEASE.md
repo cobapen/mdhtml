@@ -1,5 +1,11 @@
 # Release Log
 
+## 0.4.1 (2026-02-17)
+
+- Updated `@cobapen/markdown` to latest (0.7.0)
+- Chg: use mathjax for inline math
+- Chg: removed katex dependencies
+
 ## 0.4.0 (2026-02-10)
 
 - New: Bundled the script to improve cli launch latency

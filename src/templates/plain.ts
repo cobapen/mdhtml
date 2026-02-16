@@ -1,5 +1,4 @@
-export const plainTemplate = 
-`<!DOCTYPE html>
+export const plainTemplate = `<!DOCTYPE html>
 <html lang="ja">
 <head>
   <meta charset="UTF-8">

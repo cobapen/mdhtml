@@ -130,7 +130,7 @@ c2^| Score
 
 ## Math
 
-block math
+### Block math
 
 $$
 \begin{align}
@@ -152,10 +152,29 @@ $$
 $$
 ```
 
-Inline math:  
+### Inline math
+ 
 $ax^2 + bx + c = 0$ is surrounded by \$ and \$
 
 ```md
 Inline math:  
 $ax^2 + bx + c = 0$ is surrounded by \$ and \$
+```
+
+### Extensions 
+
+**mhchem and physics**
+
+$\ce{CO2 + C -> 2CO}$
+
+$\pu{5 mol.L^-1} \times \pu{2 L} = \pu{10 mol}$
+
+$\Delta f = \laplacian f = \pdv[2]{f}{x} + \pdv[2]{f}{y} + \pdv[2]{f}{z}$
+
+```md
+$\ce{CO2 + C -> 2CO}$
+
+$\pu{5 mol.L^-1} \times \pu{2 L} = \pu{10 mol}$
+
+$\Delta f = \laplacian f = \pdv[2]{f}{x} + \pdv[2]{f}{y} + \pdv[2]{f}{z}$
 ```

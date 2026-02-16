@@ -21,6 +21,9 @@ jobs:
       - name: npm install (ci) 
         run: npm ci
 
+      - name: build library
+        run: npm run build
+
       - name: Run unit tests
         run: npm test
   

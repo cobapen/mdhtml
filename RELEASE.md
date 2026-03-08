@@ -1,5 +1,9 @@
 # Release Log
 
+## 0.4.3 (2026-03-09)
+
+- Updated `@cobapen/markdown` to latest (0.8.1)
+
 ## 0.4.2 (2026-03-09)
 
 - Updated `@cobapen/markdown` to latest (0.8.0)

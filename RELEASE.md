@@ -1,5 +1,10 @@
 # Release Log
 
+## 0.4.2 (2026-03-09)
+
+- Updated `@cobapen/markdown` to latest (0.8.0)
+- Fix: math fontURL was incorrectly configured
+
 ## 0.4.1 (2026-02-17)
 
 - Updated `@cobapen/markdown` to latest (0.7.0)

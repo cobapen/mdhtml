@@ -55,10 +55,8 @@ export class MdHtmlConverter {
     this.#print = this.#options.quiet ? () => {} : console.log;
     this.#md = new CMarkdown({
       math: {
-        chtml: {
-          fontURL: this.#options.mathFontUrl,
-        }
-      }
+        fontURL: this.#options.mathFontUrl,
+      },
     });
     this.#mdr = new MdHtmlRenderer(this.#md, this.#pathProvider);
     this.#mathcache = "";

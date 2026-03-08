@@ -1,5 +1,10 @@
 # Release Log
 
+## 0.4.4 (2026-03-09)
+
+- Updated `@cobapen/markdown` to latest (0.8.2)
+- BugFix for the TOC marker
+
 ## 0.4.3 (2026-03-09)
 
 - Updated `@cobapen/markdown` to latest (0.8.1)
